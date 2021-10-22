@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import { removeConsoleLog } from "hardhat-preprocessor";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
@@ -12,7 +12,18 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
 
+import { getAccounts, getNodeUrl } from "./network";
+
 dotenv.config();
+
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.getNamedAccounts();
+
+  console.log(`===== Available accounts =====`);
+  Object.keys(accounts).forEach((key) => {
+    console.log(accounts[key]);
+  });
+});
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -21,24 +32,23 @@ const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
     frankenstein: {
-      url: process.env.FRANKENSTEIN_URL || "",
-      accounts: [
-        process.env.DEPLOYER_PK || "",
-        process.env.PROXY_ADMIN_PK || "",
-      ],
+      chainId: 4216137055,
+      url: getNodeUrl("frankenstein"),
+      accounts: getAccounts("frankenstein"),
       companionNetworks: {
         ropsten: "ropsten",
       },
+      gasMultiplier: 1.1,
+      loggingEnabled: true,
     },
     ropsten: {
-      url: process.env.ROPSTEN_TESTNET_URL || "",
-      accounts: [
-        process.env.DEPLOYER_PK || "",
-        process.env.PROXY_ADMIN_PK || "",
-      ],
+      chainId: 3,
+      url: getNodeUrl("ropsten"),
+      accounts: getAccounts("ropsten"),
       companionNetworks: {
-        ropsten: "frankenstein",
+        frankenstein: "frankenstein",
       },
+      loggingEnabled: true,
     },
   },
   gasReporter: {

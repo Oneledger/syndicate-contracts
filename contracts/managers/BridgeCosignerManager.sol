@@ -1,40 +1,108 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import "../interfaces/IBridgeCosignerManager.sol";
 
-contract BridgeCosignerManager is IBridgeCosignerManager {
+contract BridgeCosignerManager is Ownable, IBridgeCosignerManager {
     using ECDSA for bytes32;
 
-    mapping(address => Cosigner) public cosigners;
-    uint8 public required;
+    uint8 public constant MIN_COSIGNER_REQUIRED = 2;
+    mapping(address => Cosigner) internal _cosigners;
+    mapping(uint256 => address[]) internal _cosaddrs;
 
-    constructor(
-        address[] memory cosigners_,
-        uint256[] memory chainIds_,
-        uint8 required_
-    ) {
-        require(
-            cosigners_.length == chainIds_.length,
-            "BridgeCosignerManager: MISMATCH_VERIFIERS"
-        );
-        require(required_ != 0, "BridgeCosignerManager: MISSED_REQUIRED_COUNT");
-        require(
-            required_ <= cosigners_.length,
-            "BridgeCosignerManager: REQUIRED_MORE_THEN_COSIGNERS"
-        );
-        required = required_;
-        for (uint8 i = 0; i < cosigners_.length; i++) {
-            address signer = cosigners_[i];
-            uint256 chainId = chainIds_[i];
-            require(
-                signer != address(0),
-                "BridgeCosignerManager: ZERO_ADDRESS"
-            );
-            cosigners[signer] = Cosigner(signer, true, chainId);
+    function addCosigner(address cosaddr, uint256 chainId)
+        public
+        override
+        onlyOwner
+    {
+        Cosigner memory cosigner = _cosigners[cosaddr];
+        require(!cosigner.active, "BCM: ALREADY_EXIST");
+        require(cosaddr != address(0), "BCM: ZERO_ADDRESS");
+
+        uint256 currentChainId;
+        assembly {
+            currentChainId := chainid()
         }
+        require(currentChainId != chainId, "BCM: ONLY_EXTERNAL");
+
+        _cosaddrs[chainId].push(cosaddr);
+        _cosigners[cosaddr] = Cosigner(
+            cosaddr,
+            chainId,
+            _cosaddrs[chainId].length - 1,
+            true
+        );
+
+        emit CosignerAdded(cosaddr, chainId);
+    }
+
+    function addCosignerBatch(address[] calldata cosaddrs, uint256 chainId)
+        public
+        override
+        onlyOwner
+    {
+        require(cosaddrs.length != 0, "BCM: EMPTY_INPUTS");
+
+        for (uint256 i = 0; i < cosaddrs.length; i++) {
+            addCosigner(cosaddrs[i], chainId);
+        }
+    }
+
+    function removeCosigner(address cosaddr) public override onlyOwner {
+        Cosigner memory cosigner = _cosigners[cosaddr];
+        require(cosigner.active, "BCM: NOT_EXIST");
+        require(cosaddr != address(0), "BCM: ZERO_ADDRESS");
+
+        // move last to rm slot
+        _cosaddrs[cosigner.chainId][cosigner.index] = _cosaddrs[
+            cosigner.chainId
+        ][_cosaddrs[cosigner.chainId].length - 1];
+        _cosaddrs[cosigner.chainId].pop();
+
+        // change indexing
+        address cosaddrLast = _cosaddrs[cosigner.chainId][cosigner.index];
+        _cosigners[cosaddrLast].index = cosigner.index;
+
+        delete _cosigners[cosaddr];
+
+        emit CosignerRemoved(cosigner.addr, cosigner.chainId);
+    }
+
+    function removeCosignerBatch(address[] calldata cosaddrs)
+        public
+        override
+        onlyOwner
+    {
+        require(cosaddrs.length == 0, "BCM: EMPTY_INPUTS");
+
+        for (uint256 i = 0; i < cosaddrs.length; i++) {
+            removeCosigner(cosaddrs[i]);
+        }
+    }
+
+    function getCosigners(uint256 chainId)
+        public
+        view
+        override
+        returns (address[] memory)
+    {
+        return _cosaddrs[chainId];
+    }
+
+    function getCosignCount(uint256 chainId)
+        public
+        view
+        override
+        returns (uint8)
+    {
+        uint8 voteCount = (uint8(_cosaddrs[chainId].length) * 2) / 3; // 67%
+        return
+            MIN_COSIGNER_REQUIRED >= voteCount
+                ? MIN_COSIGNER_REQUIRED
+                : voteCount;
     }
 
     function recover(bytes32 hash, bytes calldata signature)
@@ -45,41 +113,36 @@ contract BridgeCosignerManager is IBridgeCosignerManager {
         return hash.toEthSignedMessageHash().recover(signature);
     }
 
-    // TODO: Add cosigner impl
-    // function addCosigner() external view;
-
     function verify(
         bytes32 commitment,
         uint256 chainId,
         bytes[] calldata signatures
     ) external view override returns (bool) {
-        require(
-            required <= signatures.length,
-            "BridgeCosignerManager: MISMATCH_SIGNATURES"
-        );
+        uint8 _required = getCosignCount(chainId);
+        require(_required <= signatures.length, "BCM: MISMATCH_SIGNATURES");
 
         address[] memory cached = new address[](signatures.length);
         uint8 signersMatch;
 
         for (uint8 i = 0; i < signatures.length; i++) {
             address signer = recover(commitment, signatures[i]);
-            Cosigner memory cosigner = cosigners[signer];
+            Cosigner memory cosigner = _cosigners[signer];
 
             if (
                 cosigner.active &&
                 cosigner.chainId == chainId &&
-                !inCache(cached, signer)
+                !_inCache(cached, signer)
             ) {
                 signersMatch++;
                 cached[i] = signer;
-                if (signersMatch == required) return true;
+                if (signersMatch == _required) return true;
             }
         }
 
         return false;
     }
 
-    function inCache(address[] memory cached, address signer)
+    function _inCache(address[] memory cached, address signer)
         internal
         pure
         returns (bool hasCache)

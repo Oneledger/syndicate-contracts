@@ -22,7 +22,7 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
     }
 
     /**
-     * @dev This should be responsible to get token mapping for cross chain
+     * @dev This should be responsible to get token mapping for current chain
      * @param addr address of token to get it's association
      * @param chainId of domain where token used
      */
@@ -37,16 +37,11 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
             return (token, ok);
         }
 
-        uint256 currentChainId;
-        assembly {
-            currentChainId := chainid()
-        }
-
-        if (link.enterToken.chainId == currentChainId) {
+        if (
+            link.enterToken.chainId == chainId ||
+            link.exitToken.chainId == chainId
+        ) {
             token = link.enterToken;
-            ok = true;
-        } else if (link.exitToken.chainId == currentChainId) {
-            token = link.exitToken;
             ok = true;
         }
         return (token, ok);
