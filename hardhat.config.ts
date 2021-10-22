@@ -19,9 +19,9 @@ dotenv.config();
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.getNamedAccounts();
 
-  console.log(`===== Available accounts =====`);
+  console.log(`===== Available accounts for "${hre.network.name}" =====`);
   Object.keys(accounts).forEach((key) => {
-    console.log(accounts[key]);
+    console.log(key, "=", accounts[key]);
   });
 });
 
@@ -65,8 +65,11 @@ const config: HardhatUserConfig = {
     ),
   },
   namedAccounts: {
-    deployer: 0,
-    proxyAdmin: 1,
+    proxyAdmin: 0,
+    bridgeTokenOwner: 1,
+    bridgeTokenManagerOwner: 2,
+    bridgeTokenCosignerOwner: 3,
+    bridgeRouterOwner: 4,
   },
 };
 

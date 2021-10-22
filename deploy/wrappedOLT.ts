@@ -21,7 +21,7 @@ const isValidChain = (
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  const { bridgeTokenOwner } = await getNamedAccounts();
 
   const currentChainId = await hre.getChainId();
 
@@ -29,7 +29,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy("WOLT", {
     contract: "WrappedToken",
-    from: deployer,
+    from: bridgeTokenOwner,
     skipIfAlreadyDeployed: true,
     args: ["Wrapped OLT", "WOLT", 18],
     log: true,

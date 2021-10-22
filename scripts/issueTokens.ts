@@ -99,8 +99,8 @@ const checkOrCreate = async (
 };
 
 (async () => {
-  const { deployer } = await hre.getNamedAccounts();
-  const signer = await hre.ethers.getSigner(deployer);
+  const { bridgeTokenManagerOwner } = await hre.getNamedAccounts();
+  const signer = await hre.ethers.getSigner(bridgeTokenManagerOwner);
   const enterNetwork = hre.network.name;
 
   if (!(enterNetwork in DeploymentInitData)) {

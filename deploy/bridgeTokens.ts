@@ -13,7 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer, proxyAdmin } = await getNamedAccounts();
+  const { bridgeTokenOwner, proxyAdmin } = await getNamedAccounts();
 
   const tokeList = DeploymentTokenListMap[currentChainId];
   for (let i = 0; i < tokeList.length; i++) {
@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     await deploy(`BridgeToken${token.symbol}`, {
       contract: "BridgeToken",
-      from: deployer,
+      from: bridgeTokenOwner,
       proxy: {
         owner: proxyAdmin,
         execute: {
