@@ -3,6 +3,7 @@ import hre from "hardhat";
 import { Deployment, DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 import { DeploymentCrossDomainUpdateData } from "./constants";
+import { capitalizeFirstLetter } from "./utils";
 
 interface Token {
   addr: string;
@@ -111,14 +112,6 @@ const checkOrCreate = async (
     DeploymentCrossDomainUpdateData[enterNetwork]
   );
 
-  const bridgeTokenManager: Contract | null =
-    await hre.ethers.getContractOrNull("BridgeTokenManager", signer);
-
-  if (!bridgeTokenManager) {
-    console.log("\x1b[31m BridgeTokenManager not deployed, abort.\x1b[0m");
-    return;
-  }
-
   for (let i = 0; i < extNetworks.length; i++) {
     const exitNetwork = extNetworks[i];
     if (!hre.companionNetworks[exitNetwork]) {
@@ -127,17 +120,36 @@ const checkOrCreate = async (
       );
       continue;
     }
-    const initData = DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
+    const bridgeData =
+      DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
     console.group(`\x1b[36m[${enterNetwork} -> ${exitNetwork}]\x1b[0m`);
-    for (let j = 0; j < initData.tokenLinks.length; j++) {
-      const token = initData.tokenLinks[j];
-      console.group(`\x1b[36m[token:${token.name}]\x1b[0m`);
-      const [enterToken, exitToken] = await Promise.all([
-        getBridgeToken(enterNetwork, token.fromNameOrAddress),
-        getBridgeToken(exitNetwork, token.toNameOrAddress),
-      ]);
-      if (enterToken && exitToken) {
-        await checkOrCreate(bridgeTokenManager, enterToken, exitToken);
+    for (const bridgeName of Object.keys(bridgeData)) {
+      const infoData = bridgeData[bridgeName];
+      console.group(`\x1b[36m[bridge:${bridgeName}]\x1b[0m`);
+      const bridgeTokenManager: Contract | null =
+        await hre.ethers.getContractOrNull(
+          `BridgeTokenManager${capitalizeFirstLetter(bridgeName)}`,
+          signer
+        );
+
+      if (!bridgeTokenManager) {
+        console.log(
+          "\x1b[31m BridgeTokenManager not deployed, skipping.\x1b[0m"
+        );
+        continue;
+      }
+      const tokenLinks = infoData.tokenLinks;
+      for (let j = 0; j < tokenLinks.length; j++) {
+        const token = tokenLinks[j];
+        console.group(`\x1b[36m[token:${token.name}]\x1b[0m`);
+        const [enterToken, exitToken] = await Promise.all([
+          getBridgeToken(enterNetwork, token.fromNameOrAddress),
+          getBridgeToken(exitNetwork, token.toNameOrAddress),
+        ]);
+        if (enterToken && exitToken) {
+          await checkOrCreate(bridgeTokenManager, enterToken, exitToken);
+        }
+        console.groupEnd();
       }
       console.groupEnd();
     }

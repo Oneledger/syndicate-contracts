@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.9.0;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "../interfaces/IBridgeToken.sol";
 import "../versions/Version0.sol";
 
-contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable {
+contract BridgeToken is Version0, IBridgeToken, AccessControlUpgradeable {
     // ============ Memory ============
     using SafeMath for uint256;
+
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     mapping(address => uint256) private balances;
 
@@ -30,17 +33,35 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable {
     // ============ Initializer ============
 
     function initialize(
+        address _owner,
         string calldata _name,
         string calldata _symbol,
         uint8 _decimals
-    ) public override initializer {
-        __Ownable_init();
+    ) public initializer {
+        __AccessControl_init();
+        _setupRole(DEFAULT_ADMIN_ROLE, _owner);
         token.name = _name;
         token.symbol = _symbol;
         token.decimals = _decimals;
     }
 
     // ============ External Functions ============
+
+    /** @notice Creates `_amnt` tokens and assigns them to `_to`, increasing
+     * the total supply.
+     * @dev Emits a {Transfer} event with `from` set to the zero address.
+     * Requirements:
+     * - `to` cannot be the zero address.
+     * @param _to The destination address
+     * @param _amnt The amount of tokens to be minted
+     */
+    function mint(address _to, uint256 _amnt)
+        external
+        override
+        onlyRole(MINTER_ROLE)
+    {
+        _mint(_to, _amnt);
+    }
 
     /**
      * @notice Destroys `_amnt` tokens from `_from`, reducing the
@@ -52,27 +73,19 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable {
      * @param _from The address from which to destroy the tokens
      * @param _amnt The amount of tokens to be destroyed
      */
-    function burn(address _from, uint256 _amnt) external override onlyOwner {
+    function burn(address _from, uint256 _amnt)
+        external
+        override
+        onlyRole(BURNER_ROLE)
+    {
         _burn(_from, _amnt);
-    }
-
-    /** @notice Creates `_amnt` tokens and assigns them to `_to`, increasing
-     * the total supply.
-     * @dev Emits a {Transfer} event with `from` set to the zero address.
-     * Requirements:
-     * - `to` cannot be the zero address.
-     * @param _to The destination address
-     * @param _amnt The amount of tokens to be minted
-     */
-    function mint(address _to, uint256 _amnt) external override onlyOwner {
-        _mint(_to, _amnt);
     }
 
     /**
      * @dev This is calculated at runtime
      * because the token name may change
      */
-    function domainSeparator() public view override returns (bytes32) {
+    function DOMAIN_SEPARATOR() public view override returns (bytes32) {
         uint256 _chainId;
         assembly {
             _chainId := chainid()

@@ -70,6 +70,7 @@ const config: HardhatUserConfig = {
     bridgeTokenManagerOwner: 2,
     bridgeTokenCosignerOwner: 3,
     bridgeRouterOwner: 4,
+    bridgeTokenRBAC: 5,
   },
 };
 

@@ -4,12 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IBridgeToken is IERC20 {
-    function initialize(
-        string calldata _name,
-        string calldata _symbol,
-        uint8 _decimals
-    ) external;
-
     function name() external view returns (string memory);
 
     function symbol() external view returns (string memory);
@@ -20,5 +14,5 @@ interface IBridgeToken is IERC20 {
 
     function mint(address to, uint256 amount) external;
 
-    function domainSeparator() external view returns (bytes32);
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
 }

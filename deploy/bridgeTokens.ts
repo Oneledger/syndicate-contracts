@@ -11,7 +11,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { bridgeTokenOwner, proxyAdmin } = await getNamedAccounts();
+  const { bridgeTokenOwner, bridgeTokenRBAC, proxyAdmin } =
+    await getNamedAccounts();
 
   const updateData = DeploymentUpdateData[hre.network.name];
 
@@ -25,7 +26,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         owner: proxyAdmin,
         execute: {
           methodName: "initialize",
-          args: [token.name, token.symbol, token.decimals],
+          args: [bridgeTokenRBAC, token.name, token.symbol, token.decimals],
         },
         proxyContract: "OpenZeppelinTransparentProxy",
       },
