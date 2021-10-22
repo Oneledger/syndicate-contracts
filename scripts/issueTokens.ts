@@ -2,7 +2,7 @@ import { Contract } from "ethers";
 import hre from "hardhat";
 import { Deployment, DeploymentsExtension } from "hardhat-deploy/dist/types";
 
-import { DeploymentInitData } from "./constants";
+import { DeploymentCrossDomainUpdateData } from "./constants";
 
 interface Token {
   addr: string;
@@ -103,11 +103,13 @@ const checkOrCreate = async (
   const signer = await hre.ethers.getSigner(bridgeTokenManagerOwner);
   const enterNetwork = hre.network.name;
 
-  if (!(enterNetwork in DeploymentInitData)) {
+  if (!(enterNetwork in DeploymentCrossDomainUpdateData)) {
     console.log(`\x1b[31m Unsupported network: ${enterNetwork} abort.\x1b[0m`);
     return;
   }
-  const extNetworks = Object.keys(DeploymentInitData[enterNetwork]);
+  const extNetworks = Object.keys(
+    DeploymentCrossDomainUpdateData[enterNetwork]
+  );
 
   const bridgeTokenManager: Contract | null =
     await hre.ethers.getContractOrNull("BridgeTokenManager", signer);
@@ -125,7 +127,7 @@ const checkOrCreate = async (
       );
       continue;
     }
-    const initData = DeploymentInitData[enterNetwork][exitNetwork];
+    const initData = DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
     console.group(`\x1b[36m[${enterNetwork} -> ${exitNetwork}]\x1b[0m`);
     for (let j = 0; j < initData.tokenLinks.length; j++) {
       const token = initData.tokenLinks[j];

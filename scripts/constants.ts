@@ -4,38 +4,35 @@ interface TokenLink {
   toNameOrAddress: string;
 }
 
-interface InfoData {
-  cosaddrs: string[];
-  tokenLinks: TokenLink[];
-}
-
-interface NetworkData {
-  [network: string]: InfoData;
-}
-
-interface InitData {
-  [network: string]: NetworkData;
-}
-
 interface ERC20Token {
   name: string;
   symbol: string;
   decimals: number;
 }
 
-interface TokenListMap {
-  [network: string]: Array<ERC20Token>;
+interface InfoData {
+  cosaddrs: Array<string>;
+  tokenLinks: Array<TokenLink>;
 }
 
-// oneledger
-const OneLedgerNetwork = "311752642";
-const FrankensteinNetwork = "4216137055";
+interface Bridge {
+  name: string;
+}
 
-// ethereum
-const EthereumNetwork = "1";
-const RopstenNetwork = "3";
+interface InitData {
+  bridge: Bridge;
+  tokenList: Array<ERC20Token>;
+}
 
-export const DeploymentInitData: InitData = {
+interface Data<T> {
+  [network: string]: T;
+}
+
+interface NetworkData<T> {
+  [network: string]: Data<T>;
+}
+
+export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
   frankenstein: {
     ropsten: {
       cosaddrs: [
@@ -91,58 +88,78 @@ export const DeploymentInitData: InitData = {
   },
 };
 
-export const DeploymentTokenListMap: TokenListMap = {
-  [RopstenNetwork]: [
-    {
-      name: "Syndicate OneLedger Token",
-      symbol: "OLT",
-      decimals: 18,
+export const DeploymentUpdateData: Data<InitData> = {
+  ropsten: {
+    bridge: {
+      name: "Rokstedi",
     },
-  ],
-  [EthereumNetwork]: [
-    {
-      name: "Syndicate OneLedger Token",
-      symbol: "OLT",
-      decimals: 18,
+    tokenList: [
+      {
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
+        decimals: 18,
+      },
+    ],
+  },
+  ethereum: {
+    bridge: {
+      name: "Shredder",
     },
-  ],
-  [FrankensteinNetwork]: [
-    {
-      name: "Syndicate Tether USD",
-      symbol: "USDT",
-      decimals: 6,
+    tokenList: [
+      {
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
+        decimals: 18,
+      },
+    ],
+  },
+  frankenstein: {
+    bridge: {
+      name: "Bibop",
     },
-    {
-      name: "Syndicate Wrapped ETH",
-      symbol: "WETH",
-      decimals: 18,
+    tokenList: [
+      {
+        name: "Syndicate Tether USD",
+        symbol: "USDT",
+        decimals: 6,
+      },
+      {
+        name: "Syndicate Wrapped ETH",
+        symbol: "WETH",
+        decimals: 18,
+      },
+    ],
+  },
+  oneledger: {
+    bridge: {
+      name: "Splinter",
     },
-  ],
-  [OneLedgerNetwork]: [
-    {
-      name: "Syndicate DAI Stablecoin",
-      symbol: "DAI",
-      decimals: 18,
-    },
-    {
-      name: "Syndicate USD Coin",
-      symbol: "USDC",
-      decimals: 18,
-    },
-    {
-      name: "Syndicate Tether USD",
-      symbol: "USDT",
-      decimals: 6,
-    },
-    {
-      name: "Syndicate Wrapped BTC",
-      symbol: "WBTC",
-      decimals: 18,
-    },
-    {
-      name: "Syndicate Wrapped ETH",
-      symbol: "WETH",
-      decimals: 18,
-    },
-  ],
+    tokenList: [
+      {
+        name: "Syndicate DAI Stablecoin",
+        symbol: "DAI",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate USD Coin",
+        symbol: "USDC",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate Tether USD",
+        symbol: "USDT",
+        decimals: 6,
+      },
+      {
+        name: "Syndicate Wrapped BTC",
+        symbol: "WBTC",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate Wrapped ETH",
+        symbol: "WETH",
+        decimals: 18,
+      },
+    ],
+  },
 };

@@ -1,13 +1,11 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-import { DeploymentTokenListMap } from "../scripts/constants";
+import { DeploymentUpdateData } from "../scripts/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const currentChainId = await hre.getChainId();
-
-  if (!DeploymentTokenListMap[currentChainId]) {
-    console.log(`\x1b[31m Unsupported chain id "${currentChainId}" \x1b[0m`);
+  if (!DeploymentUpdateData[hre.network.name]) {
+    console.log(`\x1b[31m Unsupported network "${hre.network.name}" \x1b[0m`);
     return;
   }
 
@@ -15,9 +13,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { bridgeTokenOwner, proxyAdmin } = await getNamedAccounts();
 
-  const tokeList = DeploymentTokenListMap[currentChainId];
-  for (let i = 0; i < tokeList.length; i++) {
-    const token = tokeList[i];
+  const updateData = DeploymentUpdateData[hre.network.name];
+
+  for (let i = 0; i < updateData.tokenList.length; i++) {
+    const token = updateData.tokenList[i];
 
     await deploy(`BridgeToken${token.symbol}`, {
       contract: "BridgeToken",
