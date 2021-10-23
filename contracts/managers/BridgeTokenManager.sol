@@ -94,11 +94,13 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
         require(tokens.length == issueTypes.length, "BTM: WRONG_LENGTH");
         require(tokens.length == MAX_SIZE, "BTM: MAX_SIZE");
 
+        require(targetChainId != _chainId, "BTM: SAME_CHAIN");
+
         bytes32 sourceKey = createKey(tokens[1], _chainId);
-        require(_keychain[sourceKey] == 0, "BTM_EXIST");
+        require(_keychain[sourceKey] == 0, "BTM: SOURCE_EXIST");
 
         bytes32 targetKey = createKey(tokens[0], targetChainId);
-        require(_keychain[targetKey] == 0, "BTM_EXIST");
+        require(_keychain[targetKey] == 0, "BTM: TARGET_EXIST");
 
         // linking
         _keychain[sourceKey] = targetKey;

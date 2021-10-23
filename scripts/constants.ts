@@ -84,6 +84,21 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
 };
 
 export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
+  // for testing fixtures
+  hardhat: {
+    tokenList: [
+      {
+        name: "Syndicate Mock USD",
+        symbol: "MUSD",
+        decimals: 6,
+      },
+      {
+        name: "Syndicate Mock ETH",
+        symbol: "METH",
+        decimals: 18,
+      },
+    ],
+  },
   frankenstein: {
     tokenList: [
       {
