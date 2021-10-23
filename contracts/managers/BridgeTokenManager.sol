@@ -7,7 +7,7 @@ import "../interfaces/IBridgeTokenManager.sol";
 contract BridgeTokenManager is Ownable, IBridgeTokenManager {
     uint8 public constant MAX_SIZE = 2;
     bytes32 private immutable _salt;
-    uint256 private _chainId;
+    uint256 private immutable _chainId;
 
     mapping(bytes32 => bytes32) private _keychain;
     mapping(bytes32 => Token) private _tokens;
@@ -21,9 +21,11 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
                 block.coinbase
             )
         );
+        uint256 chainId_;
         assembly {
-            sstore(_chainId.slot, chainid())
+            chainId_ := chainid()
         }
+        _chainId = chainId_;
     }
 
     /**
