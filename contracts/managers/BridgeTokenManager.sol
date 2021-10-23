@@ -7,8 +7,10 @@ import "../interfaces/IBridgeTokenManager.sol";
 contract BridgeTokenManager is Ownable, IBridgeTokenManager {
     uint8 public constant MAX_SIZE = 2;
     bytes32 private immutable _salt;
+    uint256 private _chainId;
 
-    mapping(bytes32 => Link) private _links;
+    mapping(bytes32 => bytes32) private _keychain;
+    mapping(bytes32 => Token) private _tokens;
 
     constructor() {
         _salt = keccak256(
@@ -19,119 +21,112 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
                 block.coinbase
             )
         );
+        assembly {
+            sstore(_chainId.slot, chainid())
+        }
     }
 
     /**
      * @dev This should be responsible to get token mapping for current chain
-     * @param addr address of token to get it's association
-     * @param chainId of domain where token used
+     * @param sourceAddr address of source token
+     * @param targetChainId of token on target
      */
-    function fetch(address addr, uint256 chainId)
+    function getLocal(address sourceAddr, uint256 targetChainId)
         public
         view
         override
         returns (Token memory token, bool ok)
     {
-        Link memory link = _get(addr, chainId);
-        if (!link.exist) {
+        bytes32 tokenKey = _keychain[createKey(sourceAddr, targetChainId)];
+        if (tokenKey == 0) {
             return (token, ok);
         }
-
-        if (
-            link.enterToken.chainId == chainId ||
-            link.exitToken.chainId == chainId
-        ) {
-            token = link.enterToken;
-            ok = true;
+        bytes32 sourceKey;
+        if (_chainId != targetChainId) {
+            sourceKey = tokenKey;
+        } else {
+            sourceKey = _keychain[tokenKey];
         }
-        return (token, ok);
+        token = _tokens[sourceKey];
+        if (!token.exist) {
+            return (token, ok);
+        }
+        ok = true;
     }
 
     /**
      * @dev This should be responsible to remove tokens connection between chains
-     * @param addr address of token to revoke
-     * @param chainId of domain where token used
+     * @param targetAddr address of target token
      */
-    function revoke(address addr, uint256 chainId) external override onlyOwner {
-        Link memory link = _get(addr, chainId);
-        require(link.exist, "BridgeTokenManager: NOT_EXIST");
+    function revoke(address targetAddr) external override onlyOwner {
+        bytes32 sourceKey = _keychain[createKey(targetAddr, _chainId)];
+        require(sourceKey != 0, "BTM: NOT_EXIST");
 
-        _remove(link);
+        bytes32 targetKey = _keychain[sourceKey];
+        require(targetKey != 0, "BTM: NOT_EXIST");
 
-        emit LinkRemoved(link);
+        delete _keychain[sourceKey];
+        delete _keychain[targetKey];
+
+        Token memory sourceToken = _tokens[sourceKey];
+        Token memory targetToken = _tokens[targetKey];
+
+        delete _tokens[sourceKey];
+        delete _tokens[targetKey];
+
+        emit TokenRemoved(sourceToken.addr, sourceToken.chainId);
+        emit TokenRemoved(targetToken.addr, targetToken.chainId);
     }
 
     /**
      * @dev This should be responsible to connect tokens between chains
      * @param tokens addresses on link connection
      * @param issueTypes for tokens
-     * @param chainIds where they are located
+     * @param targetChainId of remote token
      */
     function issue(
         address[] calldata tokens,
         IssueType[] calldata issueTypes,
-        uint256[] calldata chainIds
+        uint256 targetChainId
     ) external override onlyOwner {
-        require(
-            tokens.length == issueTypes.length,
-            "BridgeTokenManager: WRONG_LENGTH"
+        require(tokens.length == issueTypes.length, "BTM: WRONG_LENGTH");
+        require(tokens.length == MAX_SIZE, "BTM: MAX_SIZE");
+
+        bytes32 sourceKey = createKey(tokens[1], _chainId);
+        require(_keychain[sourceKey] == 0, "BTM_EXIST");
+
+        bytes32 targetKey = createKey(tokens[0], targetChainId);
+        require(_keychain[targetKey] == 0, "BTM_EXIST");
+
+        // linking
+        _keychain[sourceKey] = targetKey;
+        _keychain[targetKey] = sourceKey;
+
+        Token memory sourceToken = Token(
+            tokens[0],
+            _chainId,
+            issueTypes[0],
+            true
         );
-        require(
-            tokens.length == chainIds.length,
-            "BridgeTokenManager: WRONG_LENGTH"
-        );
-        require(tokens.length == MAX_SIZE, "BridgeTokenManager: MAX_SIZE");
-
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        require(chainIds[0] == chainId, "BridgeTokenManager: WRONG_CHAIN_ID");
-
-        Link memory link = _insert(
-            Token(tokens[0], issueTypes[0], chainIds[0]),
-            Token(tokens[1], issueTypes[1], chainIds[1])
+        Token memory targetToken = Token(
+            tokens[1],
+            targetChainId,
+            issueTypes[1],
+            true
         );
 
-        emit LinkAdded(link);
+        _tokens[sourceKey] = sourceToken;
+        _tokens[targetKey] = targetToken;
+
+        emit TokenAdded(sourceToken.addr, sourceToken.chainId);
+        emit TokenAdded(targetToken.addr, targetToken.chainId);
     }
 
-    function _set(Link memory link) private {
-        _links[_key(link.enterToken.addr, link.enterToken.chainId)] = link;
-        _links[_key(link.exitToken.addr, link.exitToken.chainId)] = link;
-    }
-
-    function _remove(Link memory link) private {
-        delete _links[_key(link.enterToken.addr, link.enterToken.chainId)];
-        delete _links[_key(link.exitToken.addr, link.exitToken.chainId)];
-    }
-
-    function _get(address addr, uint256 chainId)
-        private
-        view
-        returns (Link memory link)
-    {
-        link = _links[_key(addr, chainId)];
-    }
-
-    function _key(address addr, uint256 chainId)
+    function createKey(address sourceAddr, uint256 targetChainId)
         private
         view
         returns (bytes32)
     {
-        return keccak256(abi.encodePacked(_salt, addr, chainId));
-    }
-
-    function _insert(Token memory enterToken, Token memory exitToken)
-        private
-        returns (Link memory)
-    {
-        Link memory exitLink = _get(exitToken.addr, exitToken.chainId);
-        require(!exitLink.exist, "BridgeTokenManager: EXIT_EXIST");
-
-        Link memory link = Link(enterToken, exitToken, true);
-        _set(link);
-
-        return link;
+        return keccak256(abi.encodePacked(_salt, sourceAddr, targetChainId));
     }
 }

@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.9.0;
 
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "../interfaces/IBridgeToken.sol";
 import "../versions/Version0.sol";
 
-contract BridgeToken is Version0, IBridgeToken, AccessControlUpgradeable {
+contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable {
     // ============ Memory ============
     using SafeMath for uint256;
-
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     mapping(address => uint256) private balances;
 
@@ -33,13 +30,11 @@ contract BridgeToken is Version0, IBridgeToken, AccessControlUpgradeable {
     // ============ Initializer ============
 
     function initialize(
-        address _owner,
         string calldata _name,
         string calldata _symbol,
         uint8 _decimals
     ) public initializer {
-        __AccessControl_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, _owner);
+        __Ownable_init();
         token.name = _name;
         token.symbol = _symbol;
         token.decimals = _decimals;
@@ -55,11 +50,7 @@ contract BridgeToken is Version0, IBridgeToken, AccessControlUpgradeable {
      * @param _to The destination address
      * @param _amnt The amount of tokens to be minted
      */
-    function mint(address _to, uint256 _amnt)
-        external
-        override
-        onlyRole(MINTER_ROLE)
-    {
+    function mint(address _to, uint256 _amnt) external override onlyOwner {
         _mint(_to, _amnt);
     }
 
@@ -73,11 +64,7 @@ contract BridgeToken is Version0, IBridgeToken, AccessControlUpgradeable {
      * @param _from The address from which to destroy the tokens
      * @param _amnt The amount of tokens to be destroyed
      */
-    function burn(address _from, uint256 _amnt)
-        external
-        override
-        onlyRole(BURNER_ROLE)
-    {
+    function burn(address _from, uint256 _amnt) external override onlyOwner {
         _burn(_from, _amnt);
     }
 

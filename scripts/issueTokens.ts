@@ -3,7 +3,6 @@ import hre from "hardhat";
 import { Deployment, DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 import { DeploymentCrossDomainUpdateData } from "./constants";
-import { capitalizeFirstLetter } from "./utils";
 
 interface Token {
   addr: string;
@@ -75,9 +74,9 @@ const checkOrCreate = async (
   console.log(
     `Cheking addr in manager "${exitToken.addr}" for chain id "${exitToken.chainId}"`
   );
-  const { ok }: { ok: boolean } = await bridgeTokenManager.fetch(
+  const { ok }: { ok: boolean } = await bridgeTokenManager.getLocal(
     exitToken.addr,
-    exitToken.chainId
+    enterToken.chainId
   );
   if (ok) {
     console.log("\x1b[33m Token already issued, skipping...\x1b[0m");
@@ -91,7 +90,7 @@ const checkOrCreate = async (
     .issue(
       [enterToken.addr, exitToken.addr],
       [enterToken.issueType, exitToken.issueType],
-      [enterToken.chainId, exitToken.chainId]
+      exitToken.chainId
     )
     .then((tx) => tx.wait());
   console.log(
@@ -108,48 +107,39 @@ const checkOrCreate = async (
     console.log(`\x1b[31m Unsupported network: ${enterNetwork} abort.\x1b[0m`);
     return;
   }
+
+  const bridgeTokenManager: Contract | null =
+    await hre.ethers.getContractOrNull("BridgeTokenManager", signer);
+
+  if (!bridgeTokenManager) {
+    console.log("\x1b[31m BridgeTokenManager not deployed, skipping.\x1b[0m");
+    return;
+  }
+
   const extNetworks = Object.keys(
     DeploymentCrossDomainUpdateData[enterNetwork]
   );
 
-  for (let i = 0; i < extNetworks.length; i++) {
-    const exitNetwork = extNetworks[i];
+  for (const exitNetwork of extNetworks) {
+    console.group(`\x1b[36m[${enterNetwork} -> ${exitNetwork}]\x1b[0m`);
     if (!hre.companionNetworks[exitNetwork]) {
       console.log(
         `\x1b[33m ${exitNetwork} companion network not found. skipping.\x1b[0m`
       );
+      console.groupEnd();
       continue;
     }
-    const bridgeData =
-      DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
-    console.group(`\x1b[36m[${enterNetwork} -> ${exitNetwork}]\x1b[0m`);
-    for (const bridgeName of Object.keys(bridgeData)) {
-      const infoData = bridgeData[bridgeName];
-      console.group(`\x1b[36m[bridge:${bridgeName}]\x1b[0m`);
-      const bridgeTokenManager: Contract | null =
-        await hre.ethers.getContractOrNull(
-          `BridgeTokenManager${capitalizeFirstLetter(bridgeName)}`,
-          signer
-        );
+    const infoData = DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
 
-      if (!bridgeTokenManager) {
-        console.log(
-          "\x1b[31m BridgeTokenManager not deployed, skipping.\x1b[0m"
-        );
-        continue;
-      }
-      const tokenLinks = infoData.tokenLinks;
-      for (let j = 0; j < tokenLinks.length; j++) {
-        const token = tokenLinks[j];
-        console.group(`\x1b[36m[token:${token.name}]\x1b[0m`);
-        const [enterToken, exitToken] = await Promise.all([
-          getBridgeToken(enterNetwork, token.fromNameOrAddress),
-          getBridgeToken(exitNetwork, token.toNameOrAddress),
-        ]);
-        if (enterToken && exitToken) {
-          await checkOrCreate(bridgeTokenManager, enterToken, exitToken);
-        }
-        console.groupEnd();
+    const tokenLinks = infoData.tokenLinks;
+    for (const token of tokenLinks) {
+      console.group(`\x1b[36m[token:${token.name}]\x1b[0m`);
+      const [enterToken, exitToken] = await Promise.all([
+        getBridgeToken(enterNetwork, token.fromNameOrAddress),
+        getBridgeToken(exitNetwork, token.toNameOrAddress),
+      ]);
+      if (enterToken && exitToken) {
+        await checkOrCreate(bridgeTokenManager, enterToken, exitToken);
       }
       console.groupEnd();
     }

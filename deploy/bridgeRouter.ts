@@ -3,7 +3,6 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
 
 import { DeploymentUpdateData } from "../scripts/constants";
-import { capitalizeFirstLetter } from "../scripts/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!DeploymentUpdateData[hre.network.name]) {
@@ -15,46 +14,33 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { bridgeRouterOwner, proxyAdmin } = await getNamedAccounts();
 
-  const updateData = DeploymentUpdateData[hre.network.name];
+  const [bridgeCosignerManager, bridgeTokenManager]: [
+    Contract | null,
+    Contract | null
+  ] = await Promise.all([
+    hre.ethers.getContractOrNull("BridgeCosignerManager"),
+    hre.ethers.getContractOrNull("BridgeTokenManager"),
+  ]);
 
-  for (const bridgeName of updateData.bridgeNames) {
-    const [bridgeCosignerManager, bridgeTokenManager]: [
-      Contract | null,
-      Contract | null
-    ] = await Promise.all([
-      hre.ethers.getContractOrNull(
-        `BridgeCosignerManager${capitalizeFirstLetter(bridgeName)}`
-      ),
-      hre.ethers.getContractOrNull(
-        `BridgeTokenManager${capitalizeFirstLetter(bridgeName)}`
-      ),
-    ]);
-
-    if (!bridgeCosignerManager || !bridgeTokenManager) {
-      console.log(
-        "\x1b[31m BridgeCosignerManager or BridgeTokenManager not deployed, abort.\x1b[0m"
-      );
-      continue;
-    }
-    await deploy(`BridgeRouter${capitalizeFirstLetter(bridgeName)}`, {
-      contract: "BridgeRouter",
-      from: bridgeRouterOwner,
-      proxy: {
-        owner: proxyAdmin,
-        execute: {
-          methodName: "initialize",
-          args: [
-            capitalizeFirstLetter(bridgeName),
-            bridgeCosignerManager.address,
-            bridgeTokenManager.address,
-          ],
-        },
-        proxyContract: "OpenZeppelinTransparentProxy",
-      },
-      skipIfAlreadyDeployed: true,
-      log: true,
-    });
+  if (!bridgeCosignerManager || !bridgeTokenManager) {
+    console.log(
+      "\x1b[31m BridgeCosignerManager or BridgeTokenManager not deployed, abort.\x1b[0m"
+    );
+    return;
   }
+  await deploy("BridgeRouter", {
+    from: bridgeRouterOwner,
+    proxy: {
+      owner: proxyAdmin,
+      execute: {
+        methodName: "initialize",
+        args: [bridgeCosignerManager.address, bridgeTokenManager.address],
+      },
+      proxyContract: "OpenZeppelinTransparentProxy",
+    },
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
 };
 func.tags = ["BridgeProtocol"];
 func.dependencies = ["BridgeCosignerManager", "BridgeTokenManager"];

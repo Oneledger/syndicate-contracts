@@ -2,7 +2,6 @@ import { Contract } from "ethers";
 import hre from "hardhat";
 
 import { DeploymentCrossDomainUpdateData } from "./constants";
-import { capitalizeFirstLetter } from "./utils";
 
 const checkOrAddBatch = async (
   bridgeCosignerManager: Contract,
@@ -45,46 +44,38 @@ const checkOrAddBatch = async (
     console.log(`\x1b[31m Unsupported network: ${enterNetwork} abort.\x1b[0m`);
     return;
   }
+
+  const bridgeCosignerManager: Contract | null =
+    await hre.ethers.getContractOrNull("BridgeCosignerManager", signer);
+  if (!bridgeCosignerManager) {
+    console.log(
+      "\x1b[31m BridgeCosignerManager not deployed, skipping.\x1b[0m"
+    );
+    return;
+  }
+
   const extNetworks = Object.keys(
     DeploymentCrossDomainUpdateData[enterNetwork]
   );
 
-  for (let i = 0; i < extNetworks.length; i++) {
-    const exitNetwork = extNetworks[i];
+  for (const exitNetwork of extNetworks) {
+    console.group(`\x1b[36m[${enterNetwork} -> ${exitNetwork}]\x1b[0m`);
     if (!hre.companionNetworks[exitNetwork]) {
       console.log(
         `\x1b[33m ${exitNetwork} companion network not found. skipping.\x1b[0m`
       );
+      console.groupEnd();
       continue;
     }
     const chainId: string = await hre.companionNetworks[
       exitNetwork
     ].getChainId();
-    const bridgeData =
-      DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
-    console.group(`\x1b[36m[${enterNetwork} -> ${exitNetwork}]\x1b[0m`);
-    for (const bridgeName of Object.keys(bridgeData)) {
-      const infoData = bridgeData[bridgeName];
-      console.group(`\x1b[36m[bridge:${bridgeName}]\x1b[0m`);
-      const bridgeCosignerManager: Contract | null =
-        await hre.ethers.getContractOrNull(
-          `BridgeCosignerManager${capitalizeFirstLetter(bridgeName)}`,
-          signer
-        );
-
-      if (!bridgeCosignerManager) {
-        console.log(
-          "\x1b[31m BridgeCosignerManager not deployed, skipping.\x1b[0m"
-        );
-        continue;
-      }
-      await checkOrAddBatch(
-        bridgeCosignerManager,
-        infoData.cosaddrs,
-        chainId as unknown as number
-      );
-      console.groupEnd();
-    }
+    const infoData = DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
+    await checkOrAddBatch(
+      bridgeCosignerManager,
+      infoData.cosaddrs,
+      chainId as unknown as number
+    );
     console.groupEnd();
   }
 })();

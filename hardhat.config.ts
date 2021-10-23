@@ -11,19 +11,37 @@ import "@openzeppelin/hardhat-upgrades";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
+import { BigNumber, ethers } from "ethers";
 
 import { getAccounts, getNodeUrl } from "./network";
 
 dotenv.config();
 
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.getNamedAccounts();
+task(
+  "accounts",
+  "Prints the list of accounts with balances",
+  async (taskArgs, hre) => {
+    const accounts = await hre.getNamedAccounts();
 
-  console.log(`===== Available accounts for "${hre.network.name}" =====`);
-  Object.keys(accounts).forEach((key) => {
-    console.log(key, "=", accounts[key]);
-  });
-});
+    console.log(`===== Available accounts for "${hre.network.name}" =====`);
+    const balancePromises: Array<Promise<BigNumber>> = [];
+    for (const accKey of Object.keys(accounts)) {
+      const address = accounts[accKey];
+      balancePromises.push(hre.ethers.provider.getBalance(address));
+    }
+
+    const balances = await Promise.all(balancePromises);
+
+    Object.keys(accounts).forEach((accKey, i) => {
+      const address = accounts[accKey];
+      console.log(
+        `Key: "${accKey}", address: "${address}", balance: "${hre.ethers.utils.formatEther(
+          balances[i]
+        )}"`
+      );
+    });
+  }
+);
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -38,7 +56,6 @@ const config: HardhatUserConfig = {
       companionNetworks: {
         ropsten: "ropsten",
       },
-      gasMultiplier: 1.1,
       loggingEnabled: true,
     },
     ropsten: {
@@ -49,6 +66,8 @@ const config: HardhatUserConfig = {
         frankenstein: "frankenstein",
       },
       loggingEnabled: true,
+      gasMultiplier: 1.25,
+      gasPrice: ethers.utils.parseUnits("40", "gwei").toNumber(),
     },
   },
   gasReporter: {
@@ -70,7 +89,6 @@ const config: HardhatUserConfig = {
     bridgeTokenManagerOwner: 2,
     bridgeTokenCosignerOwner: 3,
     bridgeRouterOwner: 4,
-    bridgeTokenRBAC: 5,
   },
 };
 

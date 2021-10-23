@@ -2,8 +2,8 @@
 pragma solidity ^0.8.4;
 
 interface IBridgeTokenManager {
-    event LinkAdded(Link indexed link);
-    event LinkRemoved(Link indexed link);
+    event TokenAdded(address indexed addr, uint256 chainId);
+    event TokenRemoved(address indexed addr, uint256 chainId);
 
     enum IssueType {
         DEFAULT,
@@ -12,25 +12,20 @@ interface IBridgeTokenManager {
 
     struct Token {
         address addr;
-        IssueType issueType;
         uint256 chainId;
-    }
-
-    struct Link {
-        Token enterToken;
-        Token exitToken;
+        IssueType issueType;
         bool exist;
     }
 
     function issue(
         address[] calldata tokens,
         IssueType[] calldata issueTypes,
-        uint256[] calldata chainIds
+        uint256 targetChainId
     ) external;
 
-    function revoke(address addr, uint256 chainId) external;
+    function revoke(address targetAddr) external;
 
-    function fetch(address addr, uint256 chainId)
+    function getLocal(address sourceAddr, uint256 targetChainId)
         external
         view
         returns (Token memory token, bool ok);
