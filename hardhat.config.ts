@@ -11,6 +11,7 @@ import "@openzeppelin/hardhat-upgrades";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
+import "hardhat-contract-sizer";
 import { BigNumber, ethers } from "ethers";
 
 import { getAccounts, getNodeUrl } from "./network";
@@ -24,13 +25,11 @@ task(
     const accounts = await hre.getNamedAccounts();
 
     console.log(`===== Available accounts for "${hre.network.name}" =====`);
-    const balancePromises: Array<Promise<BigNumber>> = [];
-    for (const accKey of Object.keys(accounts)) {
-      const address = accounts[accKey];
-      balancePromises.push(hre.ethers.provider.getBalance(address));
-    }
-
-    const balances = await Promise.all(balancePromises);
+    const balances = await Promise.all(
+      Object.keys(accounts).map((accKey) =>
+        hre.web3.eth.getBalance(accounts[accKey])
+      )
+    ).then((result) => result);
 
     Object.keys(accounts).forEach((accKey, i) => {
       const address = accounts[accKey];
@@ -47,7 +46,16 @@ task(
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.4",
+  solidity: {
+    version: "0.8.4",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+      evmVersion: "berlin",
+    },
+  },
   networks: {
     frankenstein: {
       chainId: 4216137055,
@@ -89,6 +97,12 @@ const config: HardhatUserConfig = {
     bridgeTokenManagerOwner: 2,
     bridgeTokenCosignerOwner: 3,
     bridgeRouterOwner: 4,
+  },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true,
   },
 };
 

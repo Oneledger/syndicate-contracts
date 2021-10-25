@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "hardhat/console.sol";
 
 import "../interfaces/IBridgeCosignerManager.sol";
 
@@ -44,7 +45,7 @@ contract BridgeCosignerManager is Ownable, IBridgeCosignerManager {
         override
         onlyOwner
     {
-        require(cosaddrs.length != 0, "BCM: EMPTY_INPUTS");
+        require(cosaddrs.length != 0, "BCM: EMPTY_BATCH");
 
         for (uint256 i = 0; i < cosaddrs.length; i++) {
             addCosigner(cosaddrs[i], chainId);
@@ -52,19 +53,26 @@ contract BridgeCosignerManager is Ownable, IBridgeCosignerManager {
     }
 
     function removeCosigner(address cosaddr) public override onlyOwner {
+        require(cosaddr != address(0), "BCM: ZERO_ADDRESS");
         Cosigner memory cosigner = _cosigners[cosaddr];
         require(cosigner.active, "BCM: NOT_EXIST");
-        require(cosaddr != address(0), "BCM: ZERO_ADDRESS");
 
-        // move last to rm slot
-        _cosaddrs[cosigner.chainId][cosigner.index] = _cosaddrs[
-            cosigner.chainId
-        ][_cosaddrs[cosigner.chainId].length - 1];
-        _cosaddrs[cosigner.chainId].pop();
+        address[] storage addrs = _cosaddrs[cosigner.chainId];
 
-        // change indexing
-        address cosaddrLast = _cosaddrs[cosigner.chainId][cosigner.index];
-        _cosigners[cosaddrLast].index = cosigner.index;
+        if (addrs.length > 1) {
+            // move last to rm slot
+            addrs[cosigner.index] = _cosaddrs[cosigner.chainId][
+                addrs.length - 1
+            ];
+            addrs.pop();
+
+            // change indexing
+            address cosaddrLast = addrs[cosigner.index];
+            _cosigners[cosaddrLast].index = cosigner.index;
+        } else {
+            // just remove it as 1 left
+            addrs.pop();
+        }
 
         delete _cosigners[cosaddr];
 
@@ -76,7 +84,7 @@ contract BridgeCosignerManager is Ownable, IBridgeCosignerManager {
         override
         onlyOwner
     {
-        require(cosaddrs.length == 0, "BCM: EMPTY_INPUTS");
+        require(cosaddrs.length == 0, "BCM: EMPTY_BATCH");
 
         for (uint256 i = 0; i < cosaddrs.length; i++) {
             removeCosigner(cosaddrs[i]);
@@ -119,7 +127,9 @@ contract BridgeCosignerManager is Ownable, IBridgeCosignerManager {
         bytes[] calldata signatures
     ) external view override returns (bool) {
         uint8 _required = getCosignCount(chainId);
-        require(_required <= signatures.length, "BCM: MISMATCH_SIGNATURES");
+        if (_required > signatures.length) {
+            return false;
+        }
 
         address[] memory cached = new address[](signatures.length);
         uint8 signersMatch;

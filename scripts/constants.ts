@@ -88,9 +88,9 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
   hardhat: {
     tokenList: [
       {
-        name: "Syndicate Mock USD",
-        symbol: "MUSD",
-        decimals: 6,
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
+        decimals: 18,
       },
       {
         name: "Syndicate Mock ETH",

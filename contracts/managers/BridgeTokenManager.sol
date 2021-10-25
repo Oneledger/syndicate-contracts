@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IBridgeTokenManager.sol";
+import "../library/RToken.sol";
 
 contract BridgeTokenManager is Ownable, IBridgeTokenManager {
     uint8 public constant MAX_SIZE = 2;
@@ -10,7 +11,7 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
     uint256 private immutable _chainId;
 
     mapping(bytes32 => bytes32) private _keychain;
-    mapping(bytes32 => Token) private _tokens;
+    mapping(bytes32 => RToken.Token) private _tokens;
 
     constructor() {
         _salt = keccak256(
@@ -37,11 +38,11 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
         public
         view
         override
-        returns (Token memory token, bool ok)
+        returns (RToken.Token memory token)
     {
         bytes32 tokenKey = _keychain[createKey(sourceAddr, targetChainId)];
         if (tokenKey == 0) {
-            return (token, ok);
+            return token;
         }
         bytes32 sourceKey;
         if (_chainId != targetChainId) {
@@ -50,10 +51,17 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
             sourceKey = _keychain[tokenKey];
         }
         token = _tokens[sourceKey];
+    }
+
+    function isZero(uint256 targetChainId) public view override returns (bool) {
+        RToken.Token memory token = getLocal(address(0), targetChainId);
         if (!token.exist) {
-            return (token, ok);
+            return false;
         }
-        ok = true;
+        if (token.addr == address(0)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -70,8 +78,8 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
         delete _keychain[sourceKey];
         delete _keychain[targetKey];
 
-        Token memory sourceToken = _tokens[sourceKey];
-        Token memory targetToken = _tokens[targetKey];
+        RToken.Token memory sourceToken = _tokens[sourceKey];
+        RToken.Token memory targetToken = _tokens[targetKey];
 
         delete _tokens[sourceKey];
         delete _tokens[targetKey];
@@ -88,7 +96,7 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
      */
     function issue(
         address[] calldata tokens,
-        IssueType[] calldata issueTypes,
+        RToken.IssueType[] calldata issueTypes,
         uint256 targetChainId
     ) external override onlyOwner {
         require(tokens.length == issueTypes.length, "BTM: WRONG_LENGTH");
@@ -106,13 +114,13 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
         _keychain[sourceKey] = targetKey;
         _keychain[targetKey] = sourceKey;
 
-        Token memory sourceToken = Token(
+        RToken.Token memory sourceToken = RToken.Token(
             tokens[0],
             _chainId,
             issueTypes[0],
             true
         );
-        Token memory targetToken = Token(
+        RToken.Token memory targetToken = RToken.Token(
             tokens[1],
             targetChainId,
             issueTypes[1],

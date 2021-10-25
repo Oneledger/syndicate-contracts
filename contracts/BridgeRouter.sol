@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./library/RLPReader.sol";
+import "./library/RToken.sol";
 import "./versions/Version0.sol";
 import "./interfaces/IBridgeCosignerManager.sol";
 import "./interfaces/IBridgeToken.sol";
@@ -14,79 +15,36 @@ import "./interfaces/IBridgeTokenManager.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IOwnable.sol";
 
-abstract contract AbstractBridgeStorage is
+contract BridgeRouter is
     Version0,
     OwnableUpgradeable,
     ReentrancyGuardUpgradeable,
     PausableUpgradeable
 {
+    using RLPReader for bytes;
+    using RLPReader for RLPReader.RLPItem;
+    using SafeERC20 for IERC20;
+    using RToken for RToken.Token;
+
     mapping(address => uint256) internal _nonces;
     mapping(bytes32 => bool) internal _commitments;
 
-    // (0.2%) hardcoded liquidity fee.
-    // In future: shared between syndicate, relayers and lp providers
-    uint256 public constant LIQUIDITY_FEE_NUMERATOR = 9980;
-    uint256 public constant LIQUIDITY_FEE_DENOMINATOR = 10000;
-
     // ===== initialize override =====
-    IBridgeCosignerManager internal _cosignerManager;
-    IBridgeTokenManager internal _tokenManager;
+    IBridgeCosignerManager public cosignerManager;
+    IBridgeTokenManager public tokenManager;
     uint256 internal _chainId;
 
     // ===== signing =====
     bytes32 internal constant ENTER_EVENT_SIG =
         keccak256(
-            "Enter(address token,address to,uint256 amount,uint256 nonce,uint256 sourceChainId,uint256 targetChainId)"
+            "Enter(address token,address exitor,uint256 amount,uint256 nonce,uint256 localChainId,uint256 targetChainId)"
         );
 
     // ===== proxy =====
 
     uint256[49] private __gap;
 
-    // ===== functionality to override =====
-
-    /**
-     * @dev Hook that is called after enter check. This includes
-     * token deposit in according to the bridge direction.
-     */
-    function enterProcess(
-        IBridgeTokenManager.Token memory tokenData,
-        uint256 amount
-    ) internal virtual;
-
-    /**
-     * @dev Hook that is called after exit check. This includes
-     * token withdraw in according to the bridge direction.
-     */
-    function exitProcess(
-        IBridgeTokenManager.Token memory tokenData,
-        address to,
-        uint256 amount
-    ) internal virtual;
-}
-
-contract BridgeRouter is AbstractBridgeStorage {
-    using RLPReader for bytes;
-    using RLPReader for RLPReader.RLPItem;
-    using SafeERC20 for IERC20;
-
-    // Initialize function for proxy constructor. Must be used atomically
-    function initialize(
-        IBridgeCosignerManager cosignerManager_,
-        IBridgeTokenManager tokenManager_
-    ) public initializer {
-        _cosignerManager = cosignerManager_;
-        _tokenManager = tokenManager_;
-        assembly {
-            sstore(_chainId.slot, chainid())
-        }
-
-        // proxy inits
-        __Context_init_unchained();
-        __Ownable_init_unchained();
-        __Pausable_init_unchained();
-        __ReentrancyGuard_init_unchained();
-    }
+    // ===== events =====
 
     event Enter(
         address indexed token,
@@ -126,13 +84,7 @@ contract BridgeRouter is AbstractBridgeStorage {
         emit Exit(token, to, amount, commitment, _chainId, extChainId);
     }
 
-    function unsafeTransfer(address to, uint256 amount) internal {
-        require(address(this).balance >= amount, "BR: INSUFFICIENT_BALANCE");
-
-        // solhint-disable-next-line avoid-low-level-calls, avoid-call-value
-        (bool success, ) = to.call{value: amount}("");
-        require(success, "BR: SEND_REVERT");
-    }
+    // ===== functionality to update =====
 
     /**
      * @notice Set the token manager, callable only by cosigners
@@ -141,15 +93,7 @@ contract BridgeRouter is AbstractBridgeStorage {
      */
     function setTokenManager(address newTokenManager) external onlyOwner {
         require(newTokenManager != address(0), "BR: ZERO_ADDRESS");
-        _tokenManager = IBridgeTokenManager(newTokenManager);
-    }
-
-    /**
-     * @notice Get the address of contract set as token manager
-     * @return The address of token manager contract
-     */
-    function tokenManagerAddress() external view returns (address) {
-        return address(_tokenManager);
+        tokenManager = IBridgeTokenManager(newTokenManager);
     }
 
     /**
@@ -159,15 +103,25 @@ contract BridgeRouter is AbstractBridgeStorage {
      */
     function setCosignerManager(address newCosignerManager) external onlyOwner {
         require(newCosignerManager != address(0), "BR: ZERO_ADDRESS");
-        _cosignerManager = IBridgeCosignerManager(newCosignerManager);
+        cosignerManager = IBridgeCosignerManager(newCosignerManager);
     }
 
-    /**
-     * @notice Get the address of contract set as cosigner manager
-     * @return The address of cosigner manager contract
-     */
-    function cosignerManagerAddress() external view returns (address) {
-        return address(_cosignerManager);
+    // Initialize function for proxy constructor. Must be used atomically
+    function initialize(
+        IBridgeCosignerManager cosignerManager_,
+        IBridgeTokenManager tokenManager_
+    ) public initializer {
+        cosignerManager = cosignerManager_;
+        tokenManager = tokenManager_;
+        assembly {
+            sstore(_chainId.slot, chainid())
+        }
+
+        // proxy inits
+        __Context_init_unchained();
+        __Ownable_init_unchained();
+        __Pausable_init_unchained();
+        __ReentrancyGuard_init_unchained();
     }
 
     // enter amount of tokens to protocol
@@ -179,11 +133,9 @@ contract BridgeRouter is AbstractBridgeStorage {
         require(token != address(0), "BR: ZERO_ADDRESS");
         require(amount != 0, "BR: ZERO_AMOUNT");
 
-        (IBridgeTokenManager.Token memory localToken, bool ok) = _tokenManager
-            .getLocal(token, targetChainId);
-        require(ok, "BR: TOKEN_NOT_LISTED");
-
-        enterProcess(localToken, amount);
+        RToken.Token memory localToken = tokenManager
+            .getLocal(token, targetChainId)
+            .enter(amount);
         emitEnter(localToken.addr, _msgSender(), amount, targetChainId);
     }
 
@@ -195,8 +147,7 @@ contract BridgeRouter is AbstractBridgeStorage {
         whenNotPaused
     {
         require(msg.value != 0, "BR: ZERO_AMOUNT");
-        (, bool ok) = _tokenManager.getLocal(address(0), targetChainId);
-        require(ok, "BR: TOKEN_NOT_LISTED");
+        require(tokenManager.isZero(targetChainId), "BR: NOT_FOUND");
 
         emitEnter(address(0), _msgSender(), msg.value, targetChainId);
     }
@@ -225,68 +176,22 @@ contract BridgeRouter is AbstractBridgeStorage {
         uint256 extChainId = logRLPList[3].toUint();
         require(extChainId != _chainId, "BR: WRONG_SOURCE_CHAIN");
 
-        uint256 localChainId = logRLPList[4].toUint();
-        require(localChainId == _chainId, "BR: WRONG_TARGET_CHAIN");
+        require(logRLPList[4].toUint() == _chainId, "BR: WRONG_TARGET_CHAIN");
 
         // protected from replay on another network
         bytes32 commitment = keccak256(data);
 
         require(!_commitments[commitment], "BR: COMMITMENT_KNOWN");
         require(
-            _cosignerManager.verify(commitment, extChainId, signatures),
+            cosignerManager.verify(commitment, extChainId, signatures),
             "BR: INVALID_SIGNATURES"
         );
 
         _commitments[commitment] = true;
 
-        (IBridgeTokenManager.Token memory localToken, bool ok) = _tokenManager
-            .getLocal(extTokenAddr, _chainId);
-        require(ok, "BR: TOKEN_NOT_LISTED");
-
-        exitProcess(localToken, to, amount);
+        RToken.Token memory localToken = tokenManager
+            .getLocal(extTokenAddr, _chainId)
+            .exit(to, amount);
         emitExit(localToken.addr, to, commitment, amount, extChainId);
-    }
-
-    // ===== impl =====
-
-    function enterProcess(
-        IBridgeTokenManager.Token memory tokenData,
-        uint256 amount
-    ) internal override {
-        if (tokenData.issueType == IBridgeTokenManager.IssueType.MINTABLE) {
-            IBridgeToken(tokenData.addr).burn(_msgSender(), amount);
-        } else if (
-            tokenData.issueType == IBridgeTokenManager.IssueType.DEFAULT
-        ) {
-            IERC20(tokenData.addr).safeTransferFrom(
-                _msgSender(),
-                address(this),
-                amount
-            );
-        } else {
-            // in case not correct choise, should not occur
-            assert(false);
-        }
-    }
-
-    function exitProcess(
-        IBridgeTokenManager.Token memory tokenData,
-        address to,
-        uint256 amount
-    ) internal override {
-        if (tokenData.addr == address(0)) {
-            unsafeTransfer(to, amount);
-        } else if (
-            tokenData.issueType == IBridgeTokenManager.IssueType.MINTABLE
-        ) {
-            IBridgeToken(tokenData.addr).mint(to, amount);
-        } else if (
-            tokenData.issueType == IBridgeTokenManager.IssueType.DEFAULT
-        ) {
-            IERC20(tokenData.addr).safeTransfer(to, amount);
-        } else {
-            // in case not correct choise, should not occur
-            assert(false);
-        }
     }
 }

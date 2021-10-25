@@ -9,7 +9,7 @@ enum IssueType {
 }
 
 const setupTest = deployments.createFixture(
-  async ({ deployments, getNamedAccounts, ethers }, options) => {
+  async ({ deployments, getNamedAccounts, ethers }) => {
     await deployments.fixture(["BridgeTokenManager"]); // ensure you start from a fresh deployments
     const { bridgeTokenManagerOwner } = await getNamedAccounts();
     const bridgeTokenManager: BridgeTokenManager = await ethers.getContract(
@@ -18,7 +18,7 @@ const setupTest = deployments.createFixture(
     );
     const chainId = (await getChainId()) as unknown as number;
     return {
-      bridgeTokenManager: bridgeTokenManager,
+      bridgeTokenManager,
       owner: bridgeTokenManagerOwner,
       chainId: chainId,
     };
@@ -110,10 +110,10 @@ describe("BridgeTokenManager", () => {
           bridgeTokenManager.getLocal(tokens[1], currentChainId),
         ]);
         expect(localToken0).to.deep.equal(localToken1);
-        expect(localToken0.token.addr).to.be.equal(tokens[0]);
-        expect(localToken0.token.chainId).to.be.equal(currentChainId);
-        expect(localToken0.token.issueType).to.be.equal(issueTypes[0]);
-        expect(localToken0.token.exist).to.be.equal(true);
+        expect(localToken0.addr).to.be.equal(tokens[0]);
+        expect(localToken0.chainId).to.be.equal(currentChainId);
+        expect(localToken0.issueType).to.be.equal(issueTypes[0]);
+        expect(localToken0.exist).to.be.equal(true);
       } else {
         await expect(tx).to.be.revertedWith(errMsg);
       }
