@@ -35,8 +35,8 @@ const checkOrAddBatch = async (
 };
 
 (async () => {
-  const { bridgeTokenCosignerOwner } = await hre.getNamedAccounts();
-  const signer = await hre.ethers.getSigner(bridgeTokenCosignerOwner);
+  const { bridgeCosignerOwner } = await hre.getNamedAccounts();
+  const signer = await hre.ethers.getSigner(bridgeCosignerOwner);
 
   const enterNetwork = hre.network.name;
 

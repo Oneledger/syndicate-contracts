@@ -11,15 +11,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { bridgeCosignerOwner } = await getNamedAccounts();
+  const { libOwner } = await getNamedAccounts();
 
-  await deploy("BridgeCosignerManager", {
-    from: bridgeCosignerOwner,
+  await deploy("RToken", {
+    from: libOwner,
     skipIfAlreadyDeployed: true,
     args: [],
     log: true,
   });
 };
-func.tags = ["BridgeCosignerManager"];
+func.tags = ["RToken"];
 
 export default func;

@@ -20,27 +20,28 @@ library RToken {
         bool exist;
     }
 
-    function unsafeTransfer(address to, uint256 amount) internal {
-        require(address(this).balance >= amount, "BR: INSUFFICIENT_BALANCE");
+    function unsafeTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal {
+        require(from.balance >= amount, "RT: INSUFFICIENT_BALANCE");
 
         // solhint-disable-next-line avoid-low-level-calls, avoid-call-value
         (bool success, ) = to.call{value: amount}("");
-        require(success, "BR: SEND_REVERT");
+        require(success, "RT: SEND_REVERT");
     }
 
-    function enter(Token memory token, uint256 amount)
-        public
-        returns (Token memory)
-    {
-        require(token.exist, "RToken: NOT_LISTED");
+    function enter(
+        Token memory token,
+        address to,
+        uint256 amount
+    ) public returns (Token memory) {
+        require(token.exist, "RT: NOT_LISTED");
         if (token.issueType == IssueType.MINTABLE) {
             IBridgeToken(token.addr).burn(msg.sender, amount);
         } else if (token.issueType == IssueType.DEFAULT) {
-            IERC20(token.addr).safeTransferFrom(
-                msg.sender,
-                address(this),
-                amount
-            );
+            IERC20(token.addr).safeTransferFrom(msg.sender, to, amount);
         } else {
             assert(false);
         }
@@ -49,12 +50,13 @@ library RToken {
 
     function exit(
         Token memory token,
+        address from,
         address to,
         uint256 amount
     ) public returns (Token memory) {
-        require(token.exist, "RToken: NOT_LISTED");
+        require(token.exist, "RT: NOT_LISTED");
         if (token.addr == address(0)) {
-            unsafeTransfer(to, amount);
+            unsafeTransfer(from, to, amount);
         } else if (token.issueType == IssueType.MINTABLE) {
             IBridgeToken(token.addr).mint(to, amount);
         } else if (token.issueType == IssueType.DEFAULT) {

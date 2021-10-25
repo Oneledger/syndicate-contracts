@@ -93,8 +93,23 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
         decimals: 18,
       },
       {
-        name: "Syndicate Mock ETH",
-        symbol: "METH",
+        name: "Syndicate Local Non Mintable ETH",
+        symbol: "lnmETH",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate Remote Non Mintable ETH",
+        symbol: "rnmETH",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate Local Mintable ETH",
+        symbol: "lmETH",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate Remote Mintable ETH",
+        symbol: "rmETH",
         decimals: 18,
       },
     ],

@@ -9,22 +9,25 @@ interface EnterData {
   exitor: Address;
   amount: BigNumber;
   nonce: number;
+  localChainId: BigNumber | null;
   targetChainId: BigNumber;
 }
 
-export const getBridgeRouterEnterLogCommitment = async (
-  { token, exitor, amount, nonce, targetChainId }: EnterData,
+export const getBridgeRouterEnterLog = async (
+  { token, exitor, amount, nonce, localChainId, targetChainId }: EnterData,
   commitment: boolean = false
 ): Promise<string> => {
-  const chainId = BigNumber.from(await getChainId());
+  if (localChainId === null) {
+    localChainId = BigNumber.from(await getChainId());
+  }
 
   const log = ethers.utils.RLP.encode([
     "0x80",
     [BridgeRouterEnterEventSig, token, exitor],
     amount.toHexString(),
     ethers.utils.hexlify(nonce),
-    chainId.toHexString(),
     targetChainId.toHexString(),
+    localChainId.toHexString(),
   ]);
   if (commitment) {
     return keccak256(log);

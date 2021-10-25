@@ -95,13 +95,14 @@ const config: HardhatUserConfig = {
     proxyAdmin: 0,
     bridgeTokenOwner: 1,
     bridgeTokenManagerOwner: 2,
-    bridgeTokenCosignerOwner: 3,
+    bridgeCosignerOwner: 3,
     bridgeRouterOwner: 4,
+    libOwner: 5,
   },
   contractSizer: {
     alphaSort: true,
     disambiguatePaths: false,
-    runOnCompile: true,
+    runOnCompile: false,
     strict: true,
   },
 };

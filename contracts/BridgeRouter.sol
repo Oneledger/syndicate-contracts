@@ -44,6 +44,10 @@ contract BridgeRouter is
 
     uint256[49] private __gap;
 
+    // ===== fallbacks =====
+
+    receive() external payable {}
+
     // ===== events =====
 
     event Enter(
@@ -135,7 +139,7 @@ contract BridgeRouter is
 
         RToken.Token memory localToken = tokenManager
             .getLocal(token, targetChainId)
-            .enter(amount);
+            .enter(address(this), amount);
         emitEnter(localToken.addr, _msgSender(), amount, targetChainId);
     }
 
@@ -167,16 +171,17 @@ contract BridgeRouter is
         );
 
         address extTokenAddr = logTopicRLPList[1].toAddress();
-        address to = logTopicRLPList[2].toAddress();
-        require(to == _msgSender(), "BR: NOT_ONWER");
+        address exitor = logTopicRLPList[2].toAddress();
+        require(exitor == _msgSender(), "BR: NOT_ONWER");
 
         uint256 amount = logRLPList[2].toUint();
         require(amount != 0, "BR: ZERO_AMOUNT");
 
-        uint256 extChainId = logRLPList[3].toUint();
-        require(extChainId != _chainId, "BR: WRONG_SOURCE_CHAIN");
+        uint256 localChainId = logRLPList[5].toUint();
+        require(localChainId == _chainId, "BR: WRONG_TARGET_CHAIN");
 
-        require(logRLPList[4].toUint() == _chainId, "BR: WRONG_TARGET_CHAIN");
+        uint256 extChainId = logRLPList[4].toUint();
+        require(extChainId != _chainId, "BR: WRONG_SOURCE_CHAIN");
 
         // protected from replay on another network
         bytes32 commitment = keccak256(data);
@@ -191,7 +196,7 @@ contract BridgeRouter is
 
         RToken.Token memory localToken = tokenManager
             .getLocal(extTokenAddr, _chainId)
-            .exit(to, amount);
-        emitExit(localToken.addr, to, commitment, amount, extChainId);
+            .exit(address(this), exitor, amount);
+        emitExit(localToken.addr, exitor, commitment, amount, extChainId);
     }
 }

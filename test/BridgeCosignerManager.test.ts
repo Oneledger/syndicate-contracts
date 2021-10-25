@@ -2,22 +2,19 @@ import { deployments, ethers, getChainId, web3 } from "hardhat";
 import { expect } from "chai";
 
 import { BridgeCosignerManager } from "../typechain";
-import { getBridgeRouterEnterLogCommitment } from "./helpers";
+import { getBridgeRouterEnterLog } from "./helpers";
 import { ContractReceipt } from "ethers";
 
 const setupTest = deployments.createFixture(
   async ({ deployments, getNamedAccounts, ethers }) => {
     await deployments.fixture(["BridgeCosignerManager"]); // ensure you start from a fresh deployments
-    const { bridgeTokenCosignerOwner } = await getNamedAccounts();
+    const { bridgeCosignerOwner } = await getNamedAccounts();
     const bridgeCosignerManager: BridgeCosignerManager =
-      await ethers.getContract(
-        "BridgeCosignerManager",
-        bridgeTokenCosignerOwner
-      );
+      await ethers.getContract("BridgeCosignerManager", bridgeCosignerOwner);
     const chainId = (await getChainId()) as unknown as number;
     return {
       bridgeCosignerManager,
-      owner: bridgeTokenCosignerOwner,
+      owner: bridgeCosignerOwner,
       chainId: chainId,
     };
   }
@@ -227,12 +224,13 @@ describe("BridgeCosignerManager", () => {
 
     // init data
     const extChainId = ethers.BigNumber.from(5);
-    const commitment = await getBridgeRouterEnterLogCommitment(
+    const commitment = await getBridgeRouterEnterLog(
       {
         token: token0.address,
         exitor: exitor0.address,
         amount: ethers.BigNumber.from("10"),
         nonce: 0,
+        localChainId: null,
         targetChainId: extChainId,
       },
       true

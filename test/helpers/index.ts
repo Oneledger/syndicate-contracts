@@ -1,1 +1,1 @@
-export { getBridgeRouterEnterLogCommitment } from "./logs";
+export { getBridgeRouterEnterLog } from "./logs";
