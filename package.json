@@ -1,5 +1,5 @@
 {
-  "name": "syndicate-tokens",
+  "name": "syndicate-bridge",
   "version": "1.0.0",
   "description": "",
   "engines": {
@@ -48,5 +48,8 @@
     "web3": "^1.6.0",
     "yargs": "^17.2.1"
   },
-  "packageManager": "yarn@3.0.2"
+  "packageManager": "yarn@3.0.2",
+  "dependencies": {
+    "axios": "^0.24.0"
+  }
 }

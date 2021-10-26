@@ -12,16 +12,19 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
 import "hardhat-contract-sizer";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 
 import { getAccounts, getNodeUrl } from "./network";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+
+import { verifyDeploy } from "./scripts/verification/verifyLatestDeploy";
 
 dotenv.config();
 
 task(
   "accounts",
   "Prints the list of accounts with balances",
-  async (taskArgs, hre) => {
+  async (taskArgs: any, hre: HardhatRuntimeEnvironment) => {
     const accounts = await hre.getNamedAccounts();
 
     console.log(`===== Available accounts for "${hre.network.name}" =====`);
@@ -42,19 +45,36 @@ task(
   }
 );
 
+task(
+  "verify-latest-deploy",
+  "Verifies the source code of the latest contract deploy"
+).setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
+  if (!process.env.ETHERSCAN_API_KEY) {
+    throw new Error("set ETHERSCAN_API_KEY");
+  }
+  await verifyDeploy(hre, process.env.ETHERSCAN_API_KEY);
+});
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.4",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
+    compilers: [
+      {
+        version: "0.8.4",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+          evmVersion: "berlin",
+        },
       },
-      evmVersion: "berlin",
-    },
+      {
+        version: "0.7.6",
+      },
+    ],
   },
   networks: {
     frankenstein: {

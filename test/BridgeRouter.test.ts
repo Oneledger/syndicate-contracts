@@ -205,13 +205,56 @@ const setUpTestForExit = deployments.createFixture(
   }
 );
 
-describe("BridgeCosignerManager", () => {
+describe("BridgeRouter", () => {
+  it("should update cosigner and token manager", async () => {
+    const { bridgeRouter } = await setupTest();
+
+    const [cosignerAddress0, tokenManagerAddress0] = await ethers.getSigners();
+
+    const testCases = [
+      {
+        newAddress: cosignerAddress0.address,
+        get: bridgeRouter.cosignerManager,
+        set: bridgeRouter.setCosignerManager,
+        errMsg: null,
+      },
+      {
+        newAddress: tokenManagerAddress0.address,
+        get: bridgeRouter.tokenManager,
+        set: bridgeRouter.setTokenManager,
+        errMsg: null,
+      },
+      {
+        newAddress: ethers.constants.AddressZero,
+        get: bridgeRouter.cosignerManager,
+        set: bridgeRouter.setCosignerManager,
+        errMsg: "BR: ZERO_ADDRESS",
+      },
+      {
+        newAddress: ethers.constants.AddressZero,
+        get: bridgeRouter.tokenManager,
+        set: bridgeRouter.setTokenManager,
+        errMsg: "BR: ZERO_ADDRESS",
+      },
+    ];
+
+    for (const testCase of testCases) {
+      const { newAddress, get, set, errMsg } = testCase;
+
+      if (errMsg == null) {
+        await set(newAddress).then((tx) => tx.wait());
+        expect(await get()).to.be.equal(newAddress);
+      } else {
+        await expect(set(newAddress)).to.be.revertedWith(errMsg);
+      }
+    }
+  });
+
   it("should enter ETH with specified criteries and it is ok", async () => {
     const {
       bridgeRouter,
       bridgeTokenManager,
       erc20Tokens,
-      bridgeTokens,
       currentChainId,
       targetChainId,
     } = await setupTest();

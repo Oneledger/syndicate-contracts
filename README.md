@@ -1,46 +1,53 @@
-# Advanced Sample Hardhat Project
+# Syndicate bridge contracts
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+Semi-centralized bridge solution for cross chain token linking.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+Supported bridges:
+ * frankenstein -> ropsten;
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+### How to launch
+Prerequisites: node.js v.11.4.0+ is required
+1. Install dependencies:
+```yarn```
+3. Set up an environment variables to `.env` file (or just copy from `.env.example`):
 ```
+ETHERSCAN_API_KEY=ABC123ABC123ABC123ABC123ABC123ABC1
+
+ETH_NODE_URI_FRANKENSTEIN=https://frankenstein-rpc.oneledger.network
+ETH_NODE_URI_ROPSTEN=https://speedy-nodes-nyc.moralis.io/6be9c674e3a0ba73d6ba649d/eth/ropsten
+
+MNEMONIC_FRANKENSTEIN=test test test test test test test test test test test junk
+MNEMONIC_ROPSTEN=test test test test test test test test test test test junk
+```
+ - `ETHERSCAN_API_KEY` - api key for smart contract verification;
+ - `ETH_NODE_URI_<network_name>` - url for web3 rpc connection;
+ - `MNEMONIC_<network_name>` - HD wallet for contract deployment and ownership set up;
+2. Deploy contracts:
+```ENTER_NETWORK=frankenstein EXIT_NETWORK=ropsten ./scripts/autodeploy.sh```
+
+Mostly all contracts already deployed, so the second step is not mandatory (in case you want to have this contracts on own)
+
+
+### Flow
+So basically the flow consist of such parts (where `<source>` - OneLedger and `<target>` - Ethereum as bridge examples):
+1. Send token to the `<source>` bridge (function `enter` | `enterETH`);
+2. Wait for cosigners to take a proof and sign it;
+3. Withdraw a tokens from `<target>` bridge (function `exit`);
+
+So users is simply paying for their transaction on cross chains. It is always 2 txs. Bridge operation could not be revertable.
+
+### Bridge benefits
+| Pros                                       | Cons                    |
+|--------------------------------------------|-------------------------|
+| Very fast (depends on confirmation period) | Semi-centralized        |
+| Straightforward flow                       | Could not be canceled   |
+| Easy to maintain and upgrade               |                         |
+
 
 # Etherscan verification
 
 To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
 ```shell
-hardhat run --network ropsten scripts/sample-script.ts
+hh verify-latest-deploy --network ropsten
 ```
-
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
-
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
-
-# Performance optimizations
-
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).

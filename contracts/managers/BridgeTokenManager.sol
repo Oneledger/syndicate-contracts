@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "../interfaces/IBridgeTokenManager.sol";
 import "../library/RToken.sol";
 
-contract BridgeTokenManager is Ownable, IBridgeTokenManager {
+contract BridgeTokenManager is ERC165, Ownable, IBridgeTokenManager {
     uint8 public constant MAX_SIZE = 2;
     bytes32 private immutable _salt;
     uint256 private immutable _chainId;
@@ -27,6 +29,18 @@ contract BridgeTokenManager is Ownable, IBridgeTokenManager {
             chainId_ := chainid()
         }
         _chainId = chainId_;
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return
+            interfaceId == type(IBridgeTokenManager).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**

@@ -1,18 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 
 import "../interfaces/IBridgeCosignerManager.sol";
 
-contract BridgeCosignerManager is Ownable, IBridgeCosignerManager {
+contract BridgeCosignerManager is ERC165, Ownable, IBridgeCosignerManager {
     using ECDSA for bytes32;
 
     uint8 public constant MIN_COSIGNER_REQUIRED = 2;
     mapping(address => Cosigner) internal _cosigners;
     mapping(uint256 => address[]) internal _cosaddrs;
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return
+            interfaceId == type(IBridgeCosignerManager).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
 
     function addCosigner(address cosaddr, uint256 chainId)
         public
