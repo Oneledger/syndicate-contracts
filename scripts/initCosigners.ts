@@ -14,10 +14,13 @@ const checkOrAddBatch = async (
 
   const existingCosigners = await bridgeCosignerManager.getCosigners(chainId);
   console.log(`Found added cosigners: "${existingCosigners || null}"`);
-  const cosIntersection = cosaddrs.filter((cosaddr) =>
-    existingCosigners.includes(cosaddr)
-  );
-
+  const cosIntersection = cosaddrs
+    .map((cosaddr) => cosaddr.toLowerCase())
+    .filter((cosaddr) =>
+      existingCosigners
+        .map((eCosaddr) => eCosaddr.toLowerCase())
+        .includes(cosaddr)
+    );
   if (cosIntersection.length) {
     console.log("\x1b[33m One of cosigner already added, skipping...\x1b[0m");
     return;

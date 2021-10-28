@@ -74,11 +74,11 @@ const checkOrCreate = async (
   console.log(
     `Cheking addr in manager "${exitToken.addr}" for chain id "${exitToken.chainId}"`
   );
-  const { ok }: { ok: boolean } = await bridgeTokenManager.getLocal(
+  const localToken: Token = await bridgeTokenManager.getLocal(
     exitToken.addr,
     enterToken.chainId
   );
-  if (ok) {
+  if (localToken.exist) {
     console.log("\x1b[33m Token already issued, skipping...\x1b[0m");
     return;
   }

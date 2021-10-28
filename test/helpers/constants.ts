@@ -1,2 +1,2 @@
 export const BridgeRouterEnterEventSig =
-  "0x7830e52c0466b25b194d23dc2e07cd1d08f1177aa6afac5b6475fe22327c72ae";
+  "0x553685c68db2f1e0adf08d56c06ec87ff411232298a59276dbdb1b032c38151e";

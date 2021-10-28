@@ -94,6 +94,7 @@ const config: HardhatUserConfig = {
         frankenstein: "frankenstein",
       },
       loggingEnabled: true,
+      // throwOnCallFailures
       gasMultiplier: 1.25,
       gasPrice: ethers.utils.parseUnits("40", "gwei").toNumber(),
     },

@@ -23,7 +23,6 @@ contract BridgeRouter is
 {
     using RLPReader for bytes;
     using RLPReader for RLPReader.RLPItem;
-    using SafeERC20 for IERC20;
     using RToken for RToken.Token;
 
     mapping(address => uint256) internal _nonces;
@@ -36,9 +35,7 @@ contract BridgeRouter is
 
     // ===== signing =====
     bytes32 internal constant ENTER_EVENT_SIG =
-        keccak256(
-            "Enter(address token,address exitor,uint256 amount,uint256 nonce,uint256 localChainId,uint256 targetChainId)"
-        );
+        keccak256("Enter(address,address,uint256,uint256,uint256,uint256)");
 
     // ===== proxy =====
 

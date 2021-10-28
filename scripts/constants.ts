@@ -31,9 +31,9 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
   frankenstein: {
     ropsten: {
       cosaddrs: [
-        "0xdC430c2417bd94AF2f2601B8B08032599eed0040",
-        "0x8f5ebE62b1C558423f7210161d77F5091181E158",
-        "0x490B6580C558FaA452701f367369b4464775EDEb",
+        "0xa5582370a17e58bb9ebb88f8a3042f8331acd388",
+        "0x0006377ecf869f98d4072bf3750fd5119c275d29",
+        "0x0000b17a94e0d4f9fa3e71675a82364ee16f3e1b",
       ],
       tokenLinks: [
         {
@@ -56,11 +56,10 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
   },
   ropsten: {
     frankenstein: {
-      // TODO: Generate separate cosigners for frank
       cosaddrs: [
-        "0xdC430c2417bd94AF2f2601B8B08032599eed0040",
-        "0x8f5ebE62b1C558423f7210161d77F5091181E158",
-        "0x490B6580C558FaA452701f367369b4464775EDEb",
+        "0x0000b94d74ab821c0cd4b33783b1b31e8355afc7",
+        "0x0000a3b4b431fc55a4f480eddbf4aa375c056a06",
+        "0x111101a2ec7ca87fe24e35fd3330efb435861ce6",
       ],
       tokenLinks: [
         {
