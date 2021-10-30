@@ -31,14 +31,14 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
   frankenstein: {
     ropsten: {
       cosaddrs: [
-        "0xa5582370a17e58bb9ebb88f8a3042f8331acd388",
-        "0x0006377ecf869f98d4072bf3750fd5119c275d29",
-        "0x0000b17a94e0d4f9fa3e71675a82364ee16f3e1b",
+        "0x0000b94d74ab821c0cd4b33783b1b31e8355afc7",
+        "0x0000a3b4b431fc55a4f480eddbf4aa375c056a06",
+        "0x111101a2ec7ca87fe24e35fd3330efb435861ce6",
       ],
       tokenLinks: [
         {
-          name: "WETH",
-          fromNameOrAddress: "BridgeTokenWETH",
+          name: "ETH",
+          fromNameOrAddress: "BridgeTokenETH",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
         {
@@ -57,15 +57,15 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
   ropsten: {
     frankenstein: {
       cosaddrs: [
-        "0x0000b94d74ab821c0cd4b33783b1b31e8355afc7",
-        "0x0000a3b4b431fc55a4f480eddbf4aa375c056a06",
-        "0x111101a2ec7ca87fe24e35fd3330efb435861ce6",
+        "0xa5582370a17e58bb9ebb88f8a3042f8331acd388",
+        "0x0006377ecf869f98d4072bf3750fd5119c275d29",
+        "0x0000b17a94e0d4f9fa3e71675a82364ee16f3e1b",
       ],
       tokenLinks: [
         {
-          name: "WETH",
+          name: "ETH",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokenWETH",
+          toNameOrAddress: "BridgeTokenETH",
         },
         {
           name: "USDT",
@@ -121,8 +121,8 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
         decimals: 6,
       },
       {
-        name: "Syndicate Wrapped ETH",
-        symbol: "WETH",
+        name: "Syndicate ETH",
+        symbol: "ETH",
         decimals: 18,
       },
     ],

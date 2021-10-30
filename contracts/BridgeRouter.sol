@@ -184,12 +184,11 @@ contract BridgeRouter is
         bytes32 commitment = keccak256(data);
 
         require(!_commitments[commitment], "BR: COMMITMENT_KNOWN");
+        _commitments[commitment] = true;
         require(
             cosignerManager.verify(commitment, extChainId, signatures),
             "BR: INVALID_SIGNATURES"
         );
-
-        _commitments[commitment] = true;
 
         RToken.Token memory localToken = tokenManager
             .getLocal(extTokenAddr, _chainId)
