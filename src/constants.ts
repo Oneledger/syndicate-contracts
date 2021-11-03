@@ -28,6 +28,58 @@ interface NetworkData<T> {
 }
 
 export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
+  oneledger: {
+    ethereum: {
+      cosaddrs: [
+        "0xacba170ab0d5d349e0f876f7c98eab80508ca12d",
+        "0x1234567e67998c828451a36260498e4007e35d78",
+        "0x0a6ff81182e2cf8f80c698eabff7c76d55420529",
+      ],
+      tokenLinks: [
+        {
+          name: "sETH",
+          fromNameOrAddress: "BridgeTokensETH",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+        {
+          name: "sUSDT",
+          fromNameOrAddress: "BridgeTokensUSDT",
+          toNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        },
+        {
+          name: "sOLT",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokensOLT",
+        },
+      ],
+    },
+  },
+  ethereum: {
+    oneledger: {
+      cosaddrs: [
+        "0xfbc17afe92c8f1717f60dca80cb2e744bb27f7ae",
+        "0x88885faa76d2f7807a147f4d3c96ddd575746b5d",
+        "0x472054f358367ebaa1c44f3a8060217b457e6c6b",
+      ],
+      tokenLinks: [
+        {
+          name: "sETH",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokensETH",
+        },
+        {
+          name: "sUSDT",
+          fromNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+          toNameOrAddress: "BridgeTokensUSDT",
+        },
+        {
+          name: "sOLT",
+          fromNameOrAddress: "BridgeTokensOLT",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+      ],
+    },
+  },
   frankenstein: {
     ropsten: {
       cosaddrs: [
@@ -37,19 +89,19 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "ETH",
-          fromNameOrAddress: "BridgeTokenETH",
+          name: "sETH",
+          fromNameOrAddress: "BridgeTokensETH",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
         {
-          name: "USDT",
-          fromNameOrAddress: "BridgeTokenUSDT",
+          name: "sUSDT",
+          fromNameOrAddress: "BridgeTokensUSDT",
           toNameOrAddress: "0x110a13FC3efE6A245B50102D2d79B3E76125Ae83",
         },
         {
-          name: "OLT",
+          name: "sOLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokenOLT",
+          toNameOrAddress: "BridgeTokensOLT",
         },
       ],
     },
@@ -63,18 +115,18 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "ETH",
+          name: "sETH",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokenETH",
+          toNameOrAddress: "BridgeTokensETH",
         },
         {
-          name: "USDT",
+          name: "sUSDT",
           fromNameOrAddress: "0x110a13FC3efE6A245B50102D2d79B3E76125Ae83",
-          toNameOrAddress: "BridgeTokenUSDT",
+          toNameOrAddress: "BridgeTokensUSDT",
         },
         {
-          name: "OLT",
-          fromNameOrAddress: "BridgeTokenOLT",
+          name: "sOLT",
+          fromNameOrAddress: "BridgeTokensOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
       ],
@@ -113,16 +165,39 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
       },
     ],
   },
-  frankenstein: {
+  oneledger: {
     tokenList: [
       {
-        name: "Syndicate Tether USD",
-        symbol: "USDT",
+        name: "Syndicate USDT",
+        symbol: "sUSDT",
         decimals: 6,
       },
       {
         name: "Syndicate ETH",
-        symbol: "ETH",
+        symbol: "sETH",
+        decimals: 18,
+      },
+    ],
+  },
+  frankenstein: {
+    tokenList: [
+      {
+        name: "Syndicate USDT",
+        symbol: "sUSDT",
+        decimals: 6,
+      },
+      {
+        name: "Syndicate ETH",
+        symbol: "sETH",
+        decimals: 18,
+      },
+    ],
+  },
+  ethereum: {
+    tokenList: [
+      {
+        name: "Syndicate OLT",
+        symbol: "sOLT",
         decimals: 18,
       },
     ],
@@ -130,8 +205,8 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
   ropsten: {
     tokenList: [
       {
-        name: "Syndicate OneLedger Token",
-        symbol: "OLT",
+        name: "Syndicate OLT",
+        symbol: "sOLT",
         decimals: 18,
       },
     ],

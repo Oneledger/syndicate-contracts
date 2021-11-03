@@ -17,12 +17,12 @@ export TS_NODE_TRANSPILE_ONLY=1
 
 hh deploy --network $ENTER_NETWORK
 hh deploy --network $EXIT_NETWORK
-hh run --network $ENTER_NETWORK scripts/issueTokens.ts
-hh run --network $EXIT_NETWORK scripts/issueTokens.ts
-hh run --network $ENTER_NETWORK scripts/initCosigners.ts
-hh run --network $EXIT_NETWORK scripts/initCosigners.ts
-hh run --network $ENTER_NETWORK scripts/transferOwnerships.ts
-hh run --network $EXIT_NETWORK scripts/transferOwnerships.ts
+hh run --network $ENTER_NETWORK src/issueTokens.ts
+hh run --network $EXIT_NETWORK src/issueTokens.ts
+hh run --network $ENTER_NETWORK src/initCosigners.ts
+hh run --network $EXIT_NETWORK src/initCosigners.ts
+hh run --network $ENTER_NETWORK src/transferOwnerships.ts
+hh run --network $EXIT_NETWORK src/transferOwnerships.ts
 
 unset TS_NODE_TRANSPILE_ONLY
 

@@ -23,7 +23,7 @@ MNEMONIC_ROPSTEN=test test test test test test test test test test test junk
  - `ETH_NODE_URI_<network_name>` - url for web3 rpc connection;
  - `MNEMONIC_<network_name>` - HD wallet for contract deployment and ownership set up;
 2. Deploy contracts:
-```ENTER_NETWORK=frankenstein EXIT_NETWORK=ropsten ./scripts/autodeploy.sh```
+```ENTER_NETWORK=frankenstein EXIT_NETWORK=ropsten ./src/autodeploy.sh```
 
 Mostly all contracts already deployed, so the second step is not mandatory (in case you want to have this contracts on own)
 

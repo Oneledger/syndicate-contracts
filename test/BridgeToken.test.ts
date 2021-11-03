@@ -1,8 +1,7 @@
-import { deployments, ethers, getChainId, web3 } from "hardhat";
+import { deployments, ethers, getChainId } from "hardhat";
 import { expect } from "chai";
 
 import { BridgeToken } from "../typechain";
-import { BigNumber, ContractReceipt } from "ethers";
 
 const setupTest = deployments.createFixture(
   async ({ deployments, getNamedAccounts, ethers }) => {

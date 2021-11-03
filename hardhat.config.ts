@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
-
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
 import { removeConsoleLog } from "hardhat-preprocessor";
+import "hardhat/types/runtime";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
@@ -15,45 +15,10 @@ import "hardhat-contract-sizer";
 import { ethers } from "ethers";
 
 import { getAccounts, getNodeUrl } from "./network";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { verifyDeploy } from "./scripts/verification/verifyLatestDeploy";
+import "./src/tasks";
 
 dotenv.config();
-
-task(
-  "accounts",
-  "Prints the list of accounts with balances",
-  async (taskArgs: any, hre: HardhatRuntimeEnvironment) => {
-    const accounts = await hre.getNamedAccounts();
-
-    console.log(`===== Available accounts for "${hre.network.name}" =====`);
-    const balances = await Promise.all(
-      Object.keys(accounts).map((accKey) =>
-        hre.web3.eth.getBalance(accounts[accKey])
-      )
-    ).then((result) => result);
-
-    Object.keys(accounts).forEach((accKey, i) => {
-      const address = accounts[accKey];
-      console.log(
-        `Key: "${accKey}", address: "${address}", balance: "${hre.ethers.utils.formatEther(
-          balances[i]
-        )}"`
-      );
-    });
-  }
-);
-
-task(
-  "verify-latest-deploy",
-  "Verifies the source code of the latest contract deploy"
-).setAction(async (args: any, hre: HardhatRuntimeEnvironment) => {
-  if (!process.env.ETHERSCAN_API_KEY) {
-    throw new Error("set ETHERSCAN_API_KEY");
-  }
-  await verifyDeploy(hre, process.env.ETHERSCAN_API_KEY);
-});
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -77,6 +42,25 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
+    oneledger: {
+      chainId: 311752642,
+      url: getNodeUrl("oneledger"),
+      accounts: getAccounts("oneledger"),
+      companionNetworks: {
+        ethereum: "ethereum",
+      },
+      loggingEnabled: true,
+    },
+    ethereum: {
+      chainId: 1,
+      url: getNodeUrl("ethereum"),
+      accounts: getAccounts("ethereum"),
+      companionNetworks: {
+        oneledger: "oneledger",
+      },
+      loggingEnabled: true,
+      gasMultiplier: 1.25,
+    },
     frankenstein: {
       chainId: 4216137055,
       url: getNodeUrl("frankenstein"),
@@ -125,6 +109,12 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: false,
     strict: true,
+  },
+  paths: {
+    deploy: "deploy",
+    deployments: "../syndicate-deployments",
+    imports: "imports",
+    tokenList: "../syndicate-token-list",
   },
 };
 

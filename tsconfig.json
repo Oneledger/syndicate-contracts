@@ -9,7 +9,8 @@
     "noImplicitAny": false
   },
   "include": [
-    "./scripts",
+    "./deploy",
+    "./src",
     "./test",
     "./typechain"
   ],

@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
 
-import { DeploymentUpdateData } from "../scripts/constants";
+import { DeploymentUpdateData } from "../src/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!DeploymentUpdateData[hre.network.name]) {
