@@ -34,14 +34,15 @@ library RToken {
 
     function enter(
         Token memory token,
+        address from,
         address to,
         uint256 amount
-    ) public returns (Token memory) {
+    ) internal returns (Token memory) {
         require(token.exist, "RT: NOT_LISTED");
         if (token.issueType == IssueType.MINTABLE) {
-            IBridgeToken(token.addr).burn(msg.sender, amount);
+            IBridgeToken(token.addr).burn(from, amount);
         } else if (token.issueType == IssueType.DEFAULT) {
-            IERC20(token.addr).safeTransferFrom(msg.sender, to, amount);
+            IERC20(token.addr).safeTransferFrom(from, to, amount);
         } else {
             assert(false);
         }
@@ -53,7 +54,7 @@ library RToken {
         address from,
         address to,
         uint256 amount
-    ) public returns (Token memory) {
+    ) internal returns (Token memory) {
         require(token.exist, "RT: NOT_LISTED");
         if (token.addr == address(0)) {
             unsafeTransfer(from, to, amount);

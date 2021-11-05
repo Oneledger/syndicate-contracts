@@ -38,6 +38,13 @@ const config: HardhatUserConfig = {
       },
       {
         version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+          evmVersion: "berlin",
+        },
       },
     ],
   },
@@ -59,7 +66,7 @@ const config: HardhatUserConfig = {
         oneledger: "oneledger",
       },
       loggingEnabled: true,
-      gasMultiplier: 1.25,
+      gasPrice: ethers.utils.parseUnits("100", "gwei").toNumber(),
     },
     frankenstein: {
       chainId: 4216137055,
@@ -102,12 +109,11 @@ const config: HardhatUserConfig = {
     bridgeTokenManagerOwner: 2,
     bridgeCosignerOwner: 3,
     bridgeRouterOwner: 4,
-    libOwner: 5,
   },
   contractSizer: {
     alphaSort: true,
     disambiguatePaths: false,
-    runOnCompile: false,
+    runOnCompile: true,
     strict: true,
   },
   paths: {

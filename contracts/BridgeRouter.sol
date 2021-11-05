@@ -136,7 +136,7 @@ contract BridgeRouter is
 
         RToken.Token memory localToken = tokenManager
             .getLocal(token, targetChainId)
-            .enter(address(this), amount);
+            .enter(_msgSender(), address(this), amount);
         emitEnter(localToken.addr, _msgSender(), amount, targetChainId);
     }
 

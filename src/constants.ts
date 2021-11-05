@@ -37,16 +37,6 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "sETH",
-          fromNameOrAddress: "BridgeTokensETH",
-          toNameOrAddress: "0x0000000000000000000000000000000000000000",
-        },
-        {
-          name: "sUSDT",
-          fromNameOrAddress: "BridgeTokensUSDT",
-          toNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-        },
-        {
           name: "sOLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokensOLT",
@@ -62,16 +52,6 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
         "0x472054f358367ebaa1c44f3a8060217b457e6c6b",
       ],
       tokenLinks: [
-        {
-          name: "sETH",
-          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokensETH",
-        },
-        {
-          name: "sUSDT",
-          fromNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-          toNameOrAddress: "BridgeTokensUSDT",
-        },
         {
           name: "sOLT",
           fromNameOrAddress: "BridgeTokensOLT",
@@ -166,18 +146,7 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
     ],
   },
   oneledger: {
-    tokenList: [
-      {
-        name: "Syndicate USDT",
-        symbol: "sUSDT",
-        decimals: 6,
-      },
-      {
-        name: "Syndicate ETH",
-        symbol: "sETH",
-        decimals: 18,
-      },
-    ],
+    tokenList: [],
   },
   frankenstein: {
     tokenList: [
@@ -196,7 +165,7 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
   ethereum: {
     tokenList: [
       {
-        name: "Syndicate OLT",
+        name: "Syndicate OneLedger Token",
         symbol: "sOLT",
         decimals: 18,
       },
