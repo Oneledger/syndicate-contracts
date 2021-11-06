@@ -11,11 +11,11 @@ const setupTest = deployments.createFixture(
     const { bridgeCosignerOwner } = await getNamedAccounts();
     const bridgeCosignerManager: BridgeCosignerManager =
       await ethers.getContract("BridgeCosignerManager", bridgeCosignerOwner);
-    const chainId = (await getChainId()) as unknown as number;
+    const chainId = +(await getChainId());
     return {
       bridgeCosignerManager,
       owner: bridgeCosignerOwner,
-      chainId: chainId,
+      chainId,
     };
   }
 );

@@ -11,11 +11,11 @@ const setupTest = deployments.createFixture(
       "BridgeTokenOLT",
       bridgeTokenOwner
     );
-    const chainId = (await getChainId()) as unknown as number;
+    const chainId = +(await getChainId());
     return {
       bridgeToken,
       owner: bridgeTokenOwner,
-      chainId: chainId,
+      chainId,
     };
   }
 );

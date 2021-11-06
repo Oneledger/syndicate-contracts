@@ -110,8 +110,7 @@ task(TASK_GENERATE_TOKENS_LIST).setAction(
           };
         }
         const bridgeInfo = tokenData[tokenFrom.address].extensions.bridgeInfo;
-        const chainId = hre.config.networks[exitNetwork]
-          .chainId as unknown as string;
+        const chainId = hre.config.networks[exitNetwork].chainId;
         if (!chainId) {
           continue;
         }
@@ -130,7 +129,7 @@ task(TASK_GENERATE_TOKENS_LIST).setAction(
           }
           toAddress = bridgeTokenTo.address;
         }
-        bridgeInfo[chainId] = {
+        bridgeInfo[chainId.toString()] = {
           tokenAddress: toAddress,
           originBridgeAddress: enterBridgeRouter.address,
           destBridgeAddress: exitBridgeRouter.address,

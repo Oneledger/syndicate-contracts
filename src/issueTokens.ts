@@ -8,7 +8,7 @@ interface Token {
   addr: string;
   exist: boolean;
   issueType: number;
-  chainId: number;
+  chainId: string;
 }
 
 const getBridgeToken = async (
@@ -52,7 +52,7 @@ const getBridgeToken = async (
       addr: bridgeToken.address,
       exist: false,
       issueType: 1,
-      chainId: chainId as unknown as number,
+      chainId,
     };
   }
   console.log(
@@ -62,7 +62,7 @@ const getBridgeToken = async (
     addr: nameOrAddress,
     exist: false,
     issueType: 0,
-    chainId: chainId as unknown as number,
+    chainId,
   };
 };
 

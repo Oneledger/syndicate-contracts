@@ -16,7 +16,7 @@ const setupTest = deployments.createFixture(
       "BridgeTokenManager",
       bridgeTokenManagerOwner
     );
-    const chainId = (await getChainId()) as unknown as number;
+    const chainId = +(await getChainId());
     return {
       bridgeTokenManager,
       owner: bridgeTokenManagerOwner,

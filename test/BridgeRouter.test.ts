@@ -77,7 +77,7 @@ const setupTest = deployments.createFixture(
       erc20Tokens[symbol] = token;
     }
 
-    const chainId = (await getChainId()) as unknown as number;
+    const chainId = +(await getChainId());
     return {
       bridgeTokens,
       bridgeRouter,

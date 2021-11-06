@@ -6,7 +6,7 @@ import { DeploymentCrossDomainUpdateData } from "./constants";
 const checkOrAddBatch = async (
   bridgeCosignerManager: Contract,
   cosaddrs: string[],
-  chainId: number
+  chainId: string
 ) => {
   console.log(
     `Cheking cosigner addresses "${cosaddrs}" for chain id "${chainId}"`
@@ -74,11 +74,7 @@ const checkOrAddBatch = async (
       exitNetwork
     ].getChainId();
     const infoData = DeploymentCrossDomainUpdateData[enterNetwork][exitNetwork];
-    await checkOrAddBatch(
-      bridgeCosignerManager,
-      infoData.cosaddrs,
-      chainId as unknown as number
-    );
+    await checkOrAddBatch(bridgeCosignerManager, infoData.cosaddrs, chainId);
     console.groupEnd();
   }
 })();
