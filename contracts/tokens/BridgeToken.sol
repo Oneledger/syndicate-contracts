@@ -3,7 +3,6 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "../interfaces/IBridgeToken.sol";
 import "../versions/Version0.sol";
@@ -15,13 +14,8 @@ contract BridgeToken is
     OwnableUpgradeable
 {
     // ============ Memory ============
-    using SafeMath for uint256;
 
-    mapping(address => uint256) private balances;
-
-    mapping(address => mapping(address => uint256)) private allowances;
-
-    uint256 private supply;
+    uint256[3] private __reserved;
 
     struct Token {
         string name;
@@ -44,6 +38,23 @@ contract BridgeToken is
         token.name = _name;
         token.symbol = _symbol;
         token.decimals = _decimals;
+    }
+
+    /**
+     * @notice Update token info
+     * @param _newName The new name
+     * @param _newSymbol The new symbol
+     * @param _newDecimals The new decimals
+     */
+    function updateTokenInfo(
+        string calldata _newName,
+        string calldata _newSymbol,
+        uint8 _newDecimals
+    ) external override onlyOwner {
+        // careful with naming convention change here
+        token.name = _newName;
+        token.symbol = _newSymbol;
+        token.decimals = _newDecimals;
     }
 
     // ============ External Functions ============
@@ -72,29 +83,6 @@ contract BridgeToken is
      */
     function burn(address _from, uint256 _amnt) external override onlyOwner {
         _burn(_from, _amnt);
-    }
-
-    /**
-     * @dev This is calculated at runtime
-     * because the token name may change
-     */
-    function DOMAIN_SEPARATOR() public view override returns (bytes32) {
-        uint256 _chainId;
-        assembly {
-            _chainId := chainid()
-        }
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes(token.name)),
-                    keccak256(abi.encodePacked(VERSION)),
-                    _chainId,
-                    address(this)
-                )
-            );
     }
 
     // ============ ERC 20 ============

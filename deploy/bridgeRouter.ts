@@ -29,8 +29,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     proxy: {
       owner: proxyAdmin,
       execute: {
-        methodName: "initialize",
-        args: [bridgeCosignerManager.address, bridgeTokenManager.address],
+        init: {
+          methodName: "initialize",
+          args: [bridgeCosignerManager.address, bridgeTokenManager.address],
+        },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
     },
@@ -39,6 +41,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 func.tags = ["BridgeRouter"];
-func.dependencies = ["BridgeCosignerManager", "BridgeTokenManager", "RToken"];
+func.dependencies = ["BridgeCosignerManager", "BridgeTokenManager"];
 
 export default func;

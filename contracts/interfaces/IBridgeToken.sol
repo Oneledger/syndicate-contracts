@@ -6,5 +6,9 @@ interface IBridgeToken {
 
     function mint(address to, uint256 amount) external;
 
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
+    function updateTokenInfo(
+        string calldata _newName,
+        string calldata _newSymbol,
+        uint8 _newDecimals
+    ) external;
 }

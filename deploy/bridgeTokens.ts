@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
+  const { deploy, catchUnknownSigner } = deployments;
   const { bridgeTokenOwner, proxyAdmin } = await getNamedAccounts();
 
   const updateData = DeploymentUpdateData[hre.network.name];
@@ -18,20 +18,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   for (let i = 0; i < updateData.tokenList.length; i++) {
     const token = updateData.tokenList[i];
 
-    await deploy(`BridgeToken${token.symbol}`, {
-      contract: "BridgeToken",
-      from: bridgeTokenOwner,
-      proxy: {
-        owner: proxyAdmin,
-        execute: {
-          methodName: "initialize",
-          args: [token.name, token.symbol, token.decimals],
+    await catchUnknownSigner(
+      deploy(`BridgeToken${token.symbol}`, {
+        contract: "BridgeToken",
+        from: bridgeTokenOwner,
+        proxy: {
+          owner: proxyAdmin,
+          execute: {
+            init: {
+              methodName: "initialize",
+              args: [token.name, token.symbol, token.decimals],
+            },
+          },
+          proxyContract: "OpenZeppelinTransparentProxy",
         },
-        proxyContract: "OpenZeppelinTransparentProxy",
-      },
-      skipIfAlreadyDeployed: true,
-      log: true,
-    });
+        skipIfAlreadyDeployed: true,
+        log: true,
+      })
+    );
   }
 };
 func.tags = ["BridgeToken"];
