@@ -118,7 +118,7 @@ const config: HardhatUserConfig = {
   },
   paths: {
     deploy: "deploy",
-    deployments: "../syndicate-deployments",
+    deployments: "deployments",
     imports: "imports",
     tokenList: "../syndicate-token-list",
   },
