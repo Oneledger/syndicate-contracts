@@ -111,17 +111,30 @@ contract BridgeRouter is
      * @notice Update token info in case of mistake or name re-branding
      * @dev This token should be bridged in order to do this
      * @param token address of bridged token
-     * @param _newName a new name of token
-     * @param _newSymbol a new symbol of token
-     * @param _newDecimals a new decimal of token
+     * @param newName a new name of token
+     * @param newSymbol a new symbol of token
+     * @param newDecimals a new decimal of token
      */
     function updateTokenInfo(
         address token,
-        string calldata _newName,
-        string calldata _newSymbol,
-        uint8 _newDecimals
+        string calldata newName,
+        string calldata newSymbol,
+        uint8 newDecimals
     ) external onlyOwner {
-        IBridgeToken(token).updateTokenInfo(_newName, _newSymbol, _newDecimals);
+        IBridgeToken(token).updateTokenInfo(newName, newSymbol, newDecimals);
+    }
+
+    /**
+     * @notice Update token ownership (bor token upgrade and maintenance)
+     * @dev This token should be ownable in order to do this
+     * @param token address of bridged token
+     * @param newOwner new token owner
+     */
+    function transferTokenOwnership(address token, address newOwner)
+        external
+        onlyOwner
+    {
+        IOwnable(token).transferOwnership(newOwner);
     }
 
     // Initialize function for proxy constructor. Must be used atomically

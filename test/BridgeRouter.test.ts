@@ -209,6 +209,32 @@ const setUpTestForExit = deployments.createFixture(
 );
 
 describe("BridgeRouter", () => {
+  it("should transfer token ownership if owner but not others", async () => {
+    const { bridgeRouter, erc20Tokens } = await setupTest();
+    const oltToken = erc20Tokens.OLT;
+
+    const [newOwner] = await ethers.getSigners();
+
+    // bridge not an owner, will be reverted
+    await expect(
+      bridgeRouter.transferTokenOwnership(oltToken.address, newOwner.address)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+
+    // add ownership to bridge
+    await oltToken
+      .transferOwnership(bridgeRouter.address)
+      .then((tx) => tx.wait());
+
+    expect(await oltToken.owner()).to.be.equal(bridgeRouter.address);
+
+    // transfer ownership of token to some address
+    await bridgeRouter
+      .transferTokenOwnership(oltToken.address, newOwner.address)
+      .then((tx) => tx.wait());
+
+    expect(await oltToken.owner()).to.be.equal(newOwner.address);
+  });
+
   it("should update token info if owner but not others", async () => {
     const { bridgeRouter, erc20Tokens } = await setupTest();
     const oltToken = erc20Tokens.OLT;
