@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 import "../interfaces/IBridgeToken.sol";
-import "../versions/Version0.sol";
+import "../versions/Version1.sol";
 
 contract BridgeToken is
-    Version0,
+    Version1,
     IBridgeToken,
+    IERC20Permit,
     ERC20Upgradeable,
     OwnableUpgradeable
 {
@@ -24,8 +26,6 @@ contract BridgeToken is
     }
 
     Token internal token;
-
-    uint256[49] private __gap;
 
     // ============ Initializer ============
 
@@ -118,4 +118,94 @@ contract BridgeToken is
     function decimals() public view override returns (uint8) {
         return token.decimals;
     }
+
+    // ============ EIP-2612 support ============
+    bytes32 public constant PERMIT_TYPEHASH =
+        keccak256(
+            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+        );
+
+    mapping(address => uint256) internal _nonces;
+
+    function nonces(address _owner) external view override returns (uint256) {
+        return _nonces[_owner];
+    }
+
+    function permit(
+        address _owner,
+        address _spender,
+        uint256 _value,
+        uint256 _deadline,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) external override {
+        require(_deadline >= block.timestamp, "ERC20Permit: expired deadline");
+        bytes32 _hashStruct = keccak256(
+            abi.encode(
+                PERMIT_TYPEHASH,
+                _owner,
+                _spender,
+                _value,
+                _nonces[_owner]++,
+                _deadline
+            )
+        );
+        bytes32 _digest = keccak256(
+            abi.encodePacked(hex"1901", DOMAIN_SEPARATOR(), _hashStruct)
+        );
+        address _signer = ecrecover(_digest, _v, _r, _s);
+        require(
+            _signer != address(0) && _signer == _owner,
+            "ERC20Permit: invalid signature"
+        );
+        _approve(_owner, _spender, _value);
+    }
+
+    function DOMAIN_SEPARATOR() public view override returns (bytes32) {
+        uint256 _chainId;
+        assembly {
+            _chainId := chainid()
+        }
+
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes(token.name)),
+                    keccak256(bytes(toString(VERSION))),
+                    _chainId,
+                    address(this)
+                )
+            );
+    }
+
+    // ============ Utils ============
+
+    function toString(uint256 value) internal pure returns (string memory) {
+        // Inspired by OraclizeAPI's implementation - MIT licence
+        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
+
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+    // ============ Updgrade safety ============
+    uint256[47] private __gap;
 }

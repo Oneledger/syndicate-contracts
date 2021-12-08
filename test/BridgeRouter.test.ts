@@ -152,12 +152,15 @@ const setUpTestForEnter = deployments.createFixture(
 
     // assign bridge as minter owner for all tokens
     await Promise.all(
-      Object.keys(testData.erc20Tokens).map((name) =>
-        testData.erc20Tokens[name]
+      Object.keys(testData.erc20Tokens).map((name) => {
+        console.log(
+          `Transfer ownership of token "${name}" to brdige router "${testData.bridgeRouter.address}"`
+        );
+        return testData.erc20Tokens[name]
           .connect(mintSigner)
           .transferOwnership(testData.bridgeRouter.address)
-          .then((tx) => tx.wait())
-      )
+          .then((tx) => tx.wait());
+      })
     );
     return testData;
   }
@@ -206,6 +209,40 @@ const setUpTestForExit = deployments.createFixture(
 );
 
 describe("BridgeRouter", () => {
+  it("should update token info if owner but not others", async () => {
+    const { bridgeRouter, erc20Tokens } = await setupTest();
+    const oltToken = erc20Tokens.OLT;
+    const name = await oltToken.callStatic.name();
+    const symbol = await oltToken.callStatic.symbol();
+    const decimals = await oltToken.callStatic.decimals();
+
+    const newSymbol = "TOLT";
+
+    // bridge not an owner, will be reverted
+    await expect(
+      bridgeRouter.updateTokenInfo(oltToken.address, name, newSymbol, decimals)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+
+    // add ownership to bridge
+    await oltToken
+      .transferOwnership(bridgeRouter.address)
+      .then((tx) => tx.wait());
+
+    // will be succeed as bridge is token owner
+    await bridgeRouter
+      .updateTokenInfo(oltToken.address, name, newSymbol, decimals)
+      .then((tx) => tx.wait());
+
+    const nameUpdated = await oltToken.callStatic.name();
+    const symbolUpdated = await oltToken.callStatic.symbol();
+    const decimalsUpdated = await oltToken.callStatic.decimals();
+
+    expect(symbol).to.be.not.equal(symbolUpdated);
+    expect(newSymbol).to.be.equal(symbolUpdated);
+    expect(name).to.be.equal(nameUpdated);
+    expect(decimalsUpdated).to.be.equal(decimalsUpdated);
+  });
+
   it("should update cosigner and token manager", async () => {
     const { bridgeRouter } = await setupTest();
 

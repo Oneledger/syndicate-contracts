@@ -88,7 +88,7 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
         },
       ],
     },
-    "bsc-testnet": {
+    bsc_testnet: {
       cosaddrs: [
         "0xaaa14d9f70fd9fc8fb4b0c6d03a9bb06c3d20b2c",
         "0x0007087d0c1c4f639660eafa99360cc605753ad6",
@@ -143,7 +143,7 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
     },
   },
-  "bsc-testnet": {
+  bsc_testnet: {
     frankenstein: {
       cosaddrs: [
         "0x1e858c2f492529dcff103a48fd440b9a9afc4386",
@@ -243,7 +243,7 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
       },
     ],
   },
-  "bsc-testnet": {
+  bsc_testnet: {
     tokenList: [
       {
         name: "Syndicate OneLedger Token",

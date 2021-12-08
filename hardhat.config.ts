@@ -89,6 +89,24 @@ const config: HardhatUserConfig = {
       gasMultiplier: 1.25,
       gasPrice: ethers.utils.parseUnits("40", "gwei").toNumber(),
     },
+    bsc_testnet: {
+      chainId: 97,
+      url: getNodeUrl("bsc_testnet"),
+      accounts: getAccounts("bsc_testnet"),
+      companionNetworks: {
+        ropsten: "frankenstein",
+      },
+      loggingEnabled: true,
+    },
+    mumbai: {
+      chainId: 80001,
+      url: getNodeUrl("mumbai"),
+      accounts: getAccounts("mumbai"),
+      companionNetworks: {
+        ropsten: "frankenstein",
+      },
+      loggingEnabled: true,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

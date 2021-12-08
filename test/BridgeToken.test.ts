@@ -2,6 +2,8 @@ import { deployments, ethers, getChainId } from "hardhat";
 import { expect } from "chai";
 
 import { BridgeToken } from "../typechain";
+import { getPermitSignature } from "./helpers/permit";
+import { Wallet } from "ethers";
 
 const setupTest = deployments.createFixture(
   async ({ deployments, getNamedAccounts, ethers }) => {
@@ -21,6 +23,39 @@ const setupTest = deployments.createFixture(
 );
 
 describe("BridgeToken", () => {
+  it("should permit work", async () => {
+    const [wallet, other] = await ethers.getSigners();
+    const { bridgeToken } = await setupTest();
+    const value = 123;
+
+    const { v, r, s } = await getPermitSignature(
+      wallet as unknown as Wallet,
+      bridgeToken,
+      other.address,
+      value
+    );
+
+    expect(await bridgeToken.nonces(wallet.address)).to.be.equal(0);
+    expect(await bridgeToken.allowance(wallet.address, other.address)).to.be.eq(
+      0
+    );
+
+    await bridgeToken.permit(
+      wallet.address,
+      other.address,
+      value,
+      ethers.constants.MaxUint256,
+      v,
+      r,
+      s
+    );
+
+    expect(await bridgeToken.nonces(wallet.address)).to.be.equal(1);
+    expect(await bridgeToken.allowance(wallet.address, other.address)).to.be.eq(
+      value
+    );
+  });
+
   it("should fetch correct data and it is ok", async () => {
     const { bridgeToken } = await setupTest();
     expect(await bridgeToken.name()).to.be.equal("Syndicate OneLedger Token");

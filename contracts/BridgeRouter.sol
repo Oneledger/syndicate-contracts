@@ -107,6 +107,23 @@ contract BridgeRouter is
         cosignerManager = IBridgeCosignerManager(newCosignerManager);
     }
 
+    /**
+     * @notice Update token info in case of mistake or name re-branding
+     * @dev This token should be bridged in order to do this
+     * @param token address of bridged token
+     * @param _newName a new name of token
+     * @param _newSymbol a new symbol of token
+     * @param _newDecimals a new decimal of token
+     */
+    function updateTokenInfo(
+        address token,
+        string calldata _newName,
+        string calldata _newSymbol,
+        uint8 _newDecimals
+    ) external onlyOwner {
+        IBridgeToken(token).updateTokenInfo(_newName, _newSymbol, _newDecimals);
+    }
+
     // Initialize function for proxy constructor. Must be used atomically
     function initialize(
         IBridgeCosignerManager cosignerManager_,
