@@ -21,6 +21,7 @@ interface TokenInfo {
   name: string;
   decimals: number;
   symbol: string;
+  isExperimental?: boolean;
   extensions: {
     bridgeInfo: {
       [chainId: string]: BridgeInfo;
@@ -104,6 +105,7 @@ task(TASK_GENERATE_TOKENS_LIST).setAction(
             name,
             symbol,
             decimals,
+            isExperimental: tokenLink.isExperimental,
             extensions: {
               bridgeInfo: {},
             },

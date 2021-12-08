@@ -2,6 +2,7 @@ interface TokenLink {
   name: string;
   fromNameOrAddress: string;
   toNameOrAddress: string;
+  isExperimental?: boolean;
 }
 
 interface ERC20Token {
@@ -75,16 +76,19 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "ETH",
           fromNameOrAddress: "BridgeTokenETH",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+          isExperimental: true,
         },
         {
           name: "USDT",
           fromNameOrAddress: "BridgeTokenUSDT",
           toNameOrAddress: "0x110a13FC3efE6A245B50102D2d79B3E76125Ae83",
+          isExperimental: true,
         },
         {
           name: "OLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
+          isExperimental: true,
         },
       ],
     },
@@ -99,6 +103,7 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
+          isExperimental: true,
         },
       ],
     },
@@ -113,6 +118,7 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
+          isExperimental: true,
         },
       ],
     },
@@ -129,16 +135,19 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "ETH",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenETH",
+          isExperimental: true,
         },
         {
           name: "USDT",
           fromNameOrAddress: "0x110a13FC3efE6A245B50102D2d79B3E76125Ae83",
           toNameOrAddress: "BridgeTokenUSDT",
+          isExperimental: true,
         },
         {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+          isExperimental: true,
         },
       ],
     },
@@ -155,6 +164,7 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+          isExperimental: true,
         },
       ],
     },
@@ -171,6 +181,7 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+          isExperimental: true,
         },
       ],
     },

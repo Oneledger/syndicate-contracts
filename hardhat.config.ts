@@ -74,6 +74,8 @@ const config: HardhatUserConfig = {
       accounts: getAccounts("frankenstein"),
       companionNetworks: {
         ropsten: "ropsten",
+        bsc_testnet: "bsc_testnet",
+        mumbai: "mumbai",
       },
       loggingEnabled: true,
     },
@@ -94,7 +96,7 @@ const config: HardhatUserConfig = {
       url: getNodeUrl("bsc_testnet"),
       accounts: getAccounts("bsc_testnet"),
       companionNetworks: {
-        ropsten: "frankenstein",
+        frankenstein: "frankenstein",
       },
       loggingEnabled: true,
     },
@@ -103,7 +105,7 @@ const config: HardhatUserConfig = {
       url: getNodeUrl("mumbai"),
       accounts: getAccounts("mumbai"),
       companionNetworks: {
-        ropsten: "frankenstein",
+        frankenstein: "frankenstein",
       },
       loggingEnabled: true,
     },
