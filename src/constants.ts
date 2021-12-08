@@ -28,6 +28,7 @@ interface NetworkData<T> {
 }
 
 export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
+  // mainnets
   oneledger: {
     ethereum: {
       cosaddrs: [
@@ -37,9 +38,9 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "sOLT",
+          name: "OLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokensOLT",
+          toNameOrAddress: "BridgeTokenOLT",
         },
       ],
     },
@@ -53,13 +54,15 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "sOLT",
-          fromNameOrAddress: "BridgeTokensOLT",
+          name: "OLT",
+          fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
       ],
     },
   },
+
+  // testnets
   frankenstein: {
     ropsten: {
       cosaddrs: [
@@ -69,19 +72,47 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "sETH",
-          fromNameOrAddress: "BridgeTokensETH",
+          name: "ETH",
+          fromNameOrAddress: "BridgeTokenETH",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
         {
-          name: "sUSDT",
-          fromNameOrAddress: "BridgeTokensUSDT",
+          name: "USDT",
+          fromNameOrAddress: "BridgeTokenUSDT",
           toNameOrAddress: "0x110a13FC3efE6A245B50102D2d79B3E76125Ae83",
         },
         {
-          name: "sOLT",
+          name: "OLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokensOLT",
+          toNameOrAddress: "BridgeTokenOLT",
+        },
+      ],
+    },
+    "bsc-testnet": {
+      cosaddrs: [
+        "0xaaa14d9f70fd9fc8fb4b0c6d03a9bb06c3d20b2c",
+        "0x0007087d0c1c4f639660eafa99360cc605753ad6",
+        "0xccc018e22834258f1e37e10333ac47699dcaf3d2",
+      ],
+      tokenLinks: [
+        {
+          name: "OLT",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokenOLT",
+        },
+      ],
+    },
+    mumbai: {
+      cosaddrs: [
+        "0x444d20be8e2dd51c2a01464d1cfd0fd5a5f1bbf9",
+        "0x501757f22225385935480e92e73a9cad11880000",
+        "0x98319cea6d2e29a3c57fbbb6c6faacd59fdd1c1b",
+      ],
+      tokenLinks: [
+        {
+          name: "OLT",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokenOLT",
         },
       ],
     },
@@ -95,18 +126,50 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
       ],
       tokenLinks: [
         {
-          name: "sETH",
+          name: "ETH",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokensETH",
+          toNameOrAddress: "BridgeTokenETH",
         },
         {
-          name: "sUSDT",
+          name: "USDT",
           fromNameOrAddress: "0x110a13FC3efE6A245B50102D2d79B3E76125Ae83",
-          toNameOrAddress: "BridgeTokensUSDT",
+          toNameOrAddress: "BridgeTokenUSDT",
         },
         {
-          name: "sOLT",
-          fromNameOrAddress: "BridgeTokensOLT",
+          name: "OLT",
+          fromNameOrAddress: "BridgeTokenOLT",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+      ],
+    },
+  },
+  "bsc-testnet": {
+    frankenstein: {
+      cosaddrs: [
+        "0x1e858c2f492529dcff103a48fd440b9a9afc4386",
+        "0x1233b2cbd1d7b6cb8f9f160ba15b11413f5a3599",
+        "0x5554feeeeeac9626ffaa7aca13035ff2606a718c",
+      ],
+      tokenLinks: [
+        {
+          name: "OLT",
+          fromNameOrAddress: "BridgeTokenOLT",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+      ],
+    },
+  },
+  mumbai: {
+    frankenstein: {
+      cosaddrs: [
+        "0x357922c7eb3d8582729fede30365a62c112b9893",
+        "0xa1a2b95feddee60687be7434b4fd43fafcaabf34",
+        "0xa33797aabcdfb71325f699a8b4b156b23469e34f",
+      ],
+      tokenLinks: [
+        {
+          name: "OLT",
+          fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
       ],
@@ -152,12 +215,12 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
     tokenList: [
       {
         name: "Syndicate USDT",
-        symbol: "sUSDT",
+        symbol: "USDT",
         decimals: 6,
       },
       {
         name: "Syndicate ETH",
-        symbol: "sETH",
+        symbol: "ETH",
         decimals: 18,
       },
     ],
@@ -166,7 +229,7 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
     tokenList: [
       {
         name: "Syndicate OneLedger Token",
-        symbol: "sOLT",
+        symbol: "OLT",
         decimals: 18,
       },
     ],
@@ -174,8 +237,26 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
   ropsten: {
     tokenList: [
       {
-        name: "Syndicate OLT",
-        symbol: "sOLT",
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
+        decimals: 18,
+      },
+    ],
+  },
+  "bsc-testnet": {
+    tokenList: [
+      {
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
+        decimals: 18,
+      },
+    ],
+  },
+  mumbai: {
+    tokenList: [
+      {
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
         decimals: 18,
       },
     ],
