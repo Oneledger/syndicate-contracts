@@ -29,6 +29,7 @@ const etherscanNetworks = [
   "ropsten",
   "rinkeby",
   "polygon",
+  "bsc",
 ];
 
 /*
@@ -39,10 +40,34 @@ function etherscanLink(network: string, address: string) {
     return `https://polygonscan.com/address/${address}`;
   }
 
+  if (network === "bsc") {
+    return `https://bscscan.com/address/${address}`;
+  }
+
   const prefix =
     network === "mainnet" || network === "ethereum" ? "" : `${network}.`;
 
   return `https://${prefix}etherscan.io/address/${address}`;
+}
+
+/*
+ * Generate link to API Etherscan
+ * */
+export function etherscanApiLink(network: string) {
+  if (network === "polygon") {
+    return `https://api.polygonscan.com/api`;
+  }
+
+  if (network === "bsc") {
+    return `https://api.bscscan.com/api`;
+  }
+
+  const prefix =
+    network === "mainnet" || network === "ethereum"
+      ? "api."
+      : `api-${network}.`;
+
+  return `https://${prefix}etherscan.io/api`;
 }
 
 function processDeployment(

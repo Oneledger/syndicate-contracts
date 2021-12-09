@@ -1,16 +1,15 @@
 import axios from "axios";
+import { etherscanApiLink } from "./verifyLatestDeploy";
 
 export async function verifyProxy(
   network: string,
   address: string,
   etherscanKey: string
 ) {
-  const suffix = network === "ethereum" ? "" : `-${network}`;
-
   console.log(`   Submit ${address} for proxy verification on ${network}`);
   // Submit contract for verification
   const verifyResponse = await axios.post(
-    `https://api${suffix}.etherscan.io/api`,
+    etherscanApiLink(network),
     `address=${address}`,
     {
       params: {
