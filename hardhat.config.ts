@@ -55,6 +55,8 @@ const config: HardhatUserConfig = {
       accounts: getAccounts("oneledger"),
       companionNetworks: {
         ethereum: "ethereum",
+        bsc: "bsc",
+        polygon: "polygon",
       },
       loggingEnabled: true,
     },
@@ -67,6 +69,24 @@ const config: HardhatUserConfig = {
       },
       loggingEnabled: true,
       gasPrice: ethers.utils.parseUnits("80", "gwei").toNumber(),
+    },
+    bsc: {
+      chainId: 56,
+      url: getNodeUrl("bsc"),
+      accounts: getAccounts("bsc"),
+      companionNetworks: {
+        oneledger: "oneledger",
+      },
+      loggingEnabled: true,
+    },
+    polygon: {
+      chainId: 137,
+      url: getNodeUrl("polygon"),
+      accounts: getAccounts("polygon"),
+      companionNetworks: {
+        oneledger: "oneledger",
+      },
+      loggingEnabled: true,
     },
     frankenstein: {
       chainId: 4216137055,
