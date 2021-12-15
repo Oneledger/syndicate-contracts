@@ -132,7 +132,7 @@ async function verifyContract(
   network: string,
   etherscanKey: string,
   verificationInput: ContractDeploymentInfo,
-  hre: any
+  hre: HardhatRuntimeEnvironment
 ) {
   const { name, address, constructorArguments, isProxy, libraries } =
     verificationInput;

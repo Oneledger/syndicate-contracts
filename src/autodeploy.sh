@@ -23,6 +23,8 @@ hh run --network $ENTER_NETWORK src/initCosigners.ts
 hh run --network $EXIT_NETWORK src/initCosigners.ts
 hh run --network $ENTER_NETWORK src/transferOwnerships.ts
 hh run --network $EXIT_NETWORK src/transferOwnerships.ts
+hh run --network $ENTER_NETWORK src/initializeImpl.ts
+hh run --network $EXIT_NETWORK src/initializeImpl.ts
 
 unset TS_NODE_TRANSPILE_ONLY
 
