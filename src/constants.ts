@@ -165,6 +165,12 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           toNameOrAddress: "BridgeTokenOLT",
           isExperimental: true,
         },
+        {
+          name: "BUSD",
+          fromNameOrAddress: "BridgeTokenBUSD",
+          toNameOrAddress: "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee",
+          isExperimental: true,
+        },
       ],
     },
     mumbai: {
@@ -224,6 +230,12 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+          isExperimental: true,
+        },
+        {
+          name: "BUSD",
+          fromNameOrAddress: "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee",
+          toNameOrAddress: "BridgeTokenBUSD",
           isExperimental: true,
         },
       ],
@@ -319,6 +331,11 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
       {
         name: "Syndicate ETH",
         symbol: "ETH",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate BUSD",
+        symbol: "BUSD",
         decimals: 18,
       },
     ],

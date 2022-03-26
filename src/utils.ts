@@ -2,6 +2,7 @@ import { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { Deployment, DeploymentsExtension } from "hardhat-deploy/dist/types";
 import { Provider } from "@ethersproject/abstract-provider";
+import config from "../hardhat.config";
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -12,10 +13,9 @@ export const getTokenByAddress = async (
   network: string,
   address: string
 ): Promise<Contract> => {
+  const url = (config.networks as any)[network]?.url;
   const artifact = await hre.artifacts.readArtifact("BridgeToken");
-  const provider = hre.ethers.getDefaultProvider(
-    network
-  ) as unknown as Provider;
+  const provider = hre.ethers.getDefaultProvider(url) as unknown as Provider;
   return new Contract(address, artifact.abi, provider);
 };
 
