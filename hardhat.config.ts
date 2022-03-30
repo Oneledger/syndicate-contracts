@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
         oneledger: "oneledger",
       },
       loggingEnabled: true,
-      gasPrice: ethers.utils.parseUnits("80", "gwei").toNumber(),
+      gasPrice: ethers.utils.parseUnits("60", "gwei").toNumber(),
     },
     bsc: {
       chainId: 56,

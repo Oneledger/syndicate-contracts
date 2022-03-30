@@ -43,6 +43,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
         },
+        {
+          name: "USDT",
+          fromNameOrAddress: "BridgeTokenUSDT",
+          toNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        },
       ],
     },
     bsc: {
@@ -86,6 +91,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+        {
+          name: "USDT",
+          fromNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+          toNameOrAddress: "BridgeTokenUSDT",
         },
       ],
     },
@@ -292,7 +302,13 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
     ],
   },
   oneledger: {
-    tokenList: [],
+    tokenList: [
+      {
+        name: "Syndicate USDT",
+        symbol: "USDT",
+        decimals: 6,
+      },
+    ],
   },
   ethereum: {
     tokenList: [
