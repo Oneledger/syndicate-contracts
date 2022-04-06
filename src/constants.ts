@@ -48,6 +48,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "BridgeTokenUSDT",
           toNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
         },
+        {
+          name: "XDB",
+          fromNameOrAddress: "BridgeTokenXDB",
+          toNameOrAddress: "0xb9eefc4b0d472a44be93970254df4f4016569d27",
+        },
       ],
     },
     bsc: {
@@ -62,6 +67,16 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
         },
+        {
+          name: "BNB",
+          fromNameOrAddress: "BridgeTokenBNB",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+        {
+          name: "BUSD",
+          fromNameOrAddress: "BridgeTokenBUSD",
+          toNameOrAddress: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+        },
       ],
     },
     polygon: {
@@ -75,6 +90,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
+        },
+        {
+          name: "MATIC",
+          fromNameOrAddress: "BridgeTokenMATIC",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
       ],
     },
@@ -97,6 +117,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
           toNameOrAddress: "BridgeTokenUSDT",
         },
+        {
+          name: "XDB",
+          fromNameOrAddress: "0xb9eefc4b0d472a44be93970254df4f4016569d27",
+          toNameOrAddress: "BridgeTokenXDB",
+        },
       ],
     },
   },
@@ -113,6 +138,16 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
         },
+        {
+          name: "BNB",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokenBNB",
+        },
+        {
+          name: "BUSD",
+          fromNameOrAddress: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+          toNameOrAddress: "BridgeTokenBUSD",
+        },
       ],
     },
   },
@@ -128,6 +163,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+        {
+          name: "MATIC",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokenMATIC",
         },
       ],
     },
@@ -307,6 +347,26 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
         name: "Syndicate USDT",
         symbol: "USDT",
         decimals: 6,
+      },
+      {
+        name: "Syndicate DigitalBits",
+        symbol: "XDB",
+        decimals: 7,
+      },
+      {
+        name: "Syndicate MATIC",
+        symbol: "MATIC",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate BNB",
+        symbol: "BNB",
+        decimals: 18,
+      },
+      {
+        name: "Syndicate BUSD",
+        symbol: "BUSD",
+        decimals: 18,
       },
     ],
   },
