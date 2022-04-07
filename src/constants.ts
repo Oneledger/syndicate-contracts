@@ -91,11 +91,6 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "0x0000000000000000000000000000000000000000",
           toNameOrAddress: "BridgeTokenOLT",
         },
-        {
-          name: "MATIC",
-          fromNameOrAddress: "BridgeTokenMATIC",
-          toNameOrAddress: "0x0000000000000000000000000000000000000000",
-        },
       ],
     },
   },
@@ -163,11 +158,6 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
-        },
-        {
-          name: "MATIC",
-          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
-          toNameOrAddress: "BridgeTokenMATIC",
         },
       ],
     },
@@ -352,11 +342,6 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
         name: "Syndicate DigitalBits",
         symbol: "XDB",
         decimals: 7,
-      },
-      {
-        name: "Syndicate MATIC",
-        symbol: "MATIC",
-        decimals: 18,
       },
       {
         name: "Syndicate BNB",
