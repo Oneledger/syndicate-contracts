@@ -93,6 +93,25 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
         },
       ],
     },
+    okc: {
+      cosaddrs: [
+        "0x004358fb90aa54584c22909b8765943c1e585fd9",
+        "0x0059d0728f4c38810ae3288ba5cd62ef3a130467",
+        "0x00606fc472dc402c231d6973cf7800a32e2d08d9",
+      ],
+      tokenLinks: [
+        {
+          name: "OLT",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokenOLT",
+        },
+        {
+          name: "OKT",
+          fromNameOrAddress: "BridgeTokenOKT",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+      ],
+    },
   },
   ethereum: {
     oneledger: {
@@ -158,6 +177,27 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "OLT",
           fromNameOrAddress: "BridgeTokenOLT",
           toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+      ],
+    },
+  },
+  okc: {
+    oneledger: {
+      cosaddrs: [
+        "0x00119a61517baa2fafd91ac10906407f05091dc7",
+        "0x00204fddcae42a2ebfc4b59d9e99e5ac3f3687f2",
+        "0x003efdd506b4eb1303435fd545a8827ff2a47dda",
+      ],
+      tokenLinks: [
+        {
+          name: "OLT",
+          fromNameOrAddress: "BridgeTokenOLT",
+          toNameOrAddress: "0x0000000000000000000000000000000000000000",
+        },
+        {
+          name: "OKT",
+          fromNameOrAddress: "0x0000000000000000000000000000000000000000",
+          toNameOrAddress: "BridgeTokenOKT",
         },
       ],
     },
@@ -353,6 +393,11 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
         symbol: "BUSD",
         decimals: 18,
       },
+      {
+        name: "Syndicate OKT",
+        symbol: "OKT",
+        decimals: 18,
+      },
     ],
   },
   ethereum: {
@@ -374,6 +419,15 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
     ],
   },
   polygon: {
+    tokenList: [
+      {
+        name: "Syndicate OneLedger Token",
+        symbol: "OLT",
+        decimals: 18,
+      },
+    ],
+  },
+  okc: {
     tokenList: [
       {
         name: "Syndicate OneLedger Token",

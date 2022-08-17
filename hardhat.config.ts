@@ -57,6 +57,7 @@ const config: HardhatUserConfig = {
         ethereum: "ethereum",
         bsc: "bsc",
         polygon: "polygon",
+        okc: "okc",
       },
       loggingEnabled: true,
     },
@@ -83,6 +84,15 @@ const config: HardhatUserConfig = {
       chainId: 137,
       url: getNodeUrl("polygon"),
       accounts: getAccounts("polygon"),
+      companionNetworks: {
+        oneledger: "oneledger",
+      },
+      loggingEnabled: true,
+    },
+    okc: {
+      chainId: 66,
+      url: getNodeUrl("okc"),
+      accounts: getAccounts("okc"),
       companionNetworks: {
         oneledger: "oneledger",
       },
@@ -133,13 +143,6 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
-  },
-  etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      bsc: process.env.BSCSCAN_API_KEY,
-      polygon: process.env.POLYGONSCAN_API_KEY,
-    },
   },
   preprocess: {
     eachLine: removeConsoleLog(
