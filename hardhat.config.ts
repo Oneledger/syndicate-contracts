@@ -109,18 +109,18 @@ const config: HardhatUserConfig = {
       },
       loggingEnabled: true,
     },
-    ropsten: {
-      chainId: 3,
-      url: getNodeUrl("ropsten"),
-      accounts: getAccounts("ropsten"),
-      companionNetworks: {
-        frankenstein: "frankenstein",
-      },
-      loggingEnabled: true,
-      // throwOnCallFailures
-      gasMultiplier: 1.25,
-      gasPrice: ethers.utils.parseUnits("40", "gwei").toNumber(),
-    },
+    // ropsten: {
+    //   chainId: 3,
+    //   url: getNodeUrl("ropsten"),
+    //   accounts: getAccounts("ropsten"),
+    //   companionNetworks: {
+    //     frankenstein: "frankenstein",
+    //   },
+    //   loggingEnabled: true,
+    //   // throwOnCallFailures
+    //   gasMultiplier: 1.25,
+    //   gasPrice: ethers.utils.parseUnits("40", "gwei").toNumber(),
+    // },
     bsc_testnet: {
       chainId: 97,
       url: getNodeUrl("bsc_testnet"),

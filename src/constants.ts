@@ -53,6 +53,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           fromNameOrAddress: "BridgeTokenXDB",
           toNameOrAddress: "0xb9eefc4b0d472a44be93970254df4f4016569d27",
         },
+        {
+          name: "USDC",
+          fromNameOrAddress: "BridgeTokenUSDC",
+          toNameOrAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        },
       ],
     },
     bsc: {
@@ -135,6 +140,11 @@ export const DeploymentCrossDomainUpdateData: NetworkData<InfoData> = {
           name: "XDB",
           fromNameOrAddress: "0xb9eefc4b0d472a44be93970254df4f4016569d27",
           toNameOrAddress: "BridgeTokenXDB",
+        },
+        {
+          name: "USDC",
+          fromNameOrAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          toNameOrAddress: "BridgeTokenUSDC",
         },
       ],
     },
@@ -397,6 +407,11 @@ export const DeploymentUpdateData: NetworkCompanionData<InitData> = {
         name: "Syndicate WOKT",
         symbol: "WOKT",
         decimals: 18,
+      },
+      {
+        name: "Syndicate USDC",
+        symbol: "USDC",
+        decimals: 6,
       },
     ],
   },
